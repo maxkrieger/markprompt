@@ -497,38 +497,20 @@ const PlaygroundDashboard: FC<PlaygroundDashboardProps> = ({
       search: {
         ...markpromptOptions.search,
         searchUrl: getApiUrl('search', false),
+        getHref: undefined,
       },
       references: {
         ...markpromptOptions.references,
         // loadingText: loadingText,
         // referencesText: referencesHeading,
-        // getHref: (reference: FileSectionReference) => {
-        //   console.log('reference', JSON.stringify(reference, null, 2));
-        //   return '';
-        // },
-        // getLabel: (reference: FileSectionReference) => {
-        //   console.log('reference', JSON.stringify(reference, null, 2));
-        //   return 'Hihi';
-        // },
-        // transformReferenceId: (path: string) => {
-        //   const file = files?.find((f) => f.path === path);
-        //   if (file) {
-        //     let name = path;
-        //     const metaTitle = (file.meta as any).title;
-        //     if (metaTitle) {
-        //       name = metaTitle;
-        //     } else {
-        //       name = removeFileExtension(getNameFromPath(path));
-        //     }
-        //     return {
-        //       text: name,
-        //       href: path,
-        //     };
-        //   }
-        //   return { text: 'Unknown', href: '#' };
-        // },
+        getHref: undefined,
+        getLabel: undefined,
+        // Backwards
+        transformReferenceId: undefined,
       },
     };
+
+    console.log('serializedProps', serializedProps);
 
     const colors = isDark ? theme.colors.dark : theme.colors.light;
     theme.size;
@@ -752,14 +734,14 @@ const PlaygroundDashboard: FC<PlaygroundDashboardProps> = ({
                   onOverlay={false}
                   top={
                     overlayDimensions.playgroundTop +
-                    (theme.size === 'sm' ? 48 : 51)
+                    (theme.size === 'sm' ? 105 : 107)
                   }
                   left={overlayDimensions.playgroundLeft + 90}
                   width={overlayDimensions.playgroundWidth / 2 - 90}
                   height={
                     overlayDimensions.overlayMessageTop -
                     overlayDimensions.playgroundTop -
-                    (theme.size === 'sm' ? 47 : 50)
+                    (theme.size === 'sm' ? 105 : 107)
                   }
                 />
               )}
