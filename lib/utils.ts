@@ -1,6 +1,6 @@
 import { createHash } from 'crypto';
 
-import { FileSectionReference, FileReferenceFileData } from '@markprompt/core';
+import { FileSectionReference } from '@markprompt/core';
 import slugify from '@sindresorhus/slugify';
 import confetti from 'canvas-confetti';
 import { format } from 'date-fns';
@@ -39,7 +39,7 @@ import {
   WebsiteSourceDataType,
 } from '@/types/types';
 
-import { MIN_SLUG_LENGTH } from './constants';
+import { FileReferenceFileData, MIN_SLUG_LENGTH } from './constants';
 import { removeSchema } from './utils.edge';
 
 const lookup = [

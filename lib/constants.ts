@@ -2,6 +2,7 @@ import {
   DEFAULT_SUBMIT_PROMPT_OPTIONS,
   DEFAULT_SUBMIT_SEARCH_QUERY_OPTIONS,
   FileSectionReference,
+  Source,
   SubmitPromptOptions,
   SubmitSearchQueryOptions,
 } from '@markprompt/core';
@@ -273,4 +274,11 @@ export type MarkpromptOptions = {
    * @default false
    **/
   debug?: boolean;
+};
+
+export type FileReferenceFileData = {
+  title?: string;
+  path: string;
+  meta?: any;
+  source: Source;
 };
