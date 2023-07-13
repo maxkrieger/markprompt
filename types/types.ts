@@ -3,7 +3,9 @@ import {
   OpenAICompletionsModelId,
   OpenAIEmbeddingsModelId,
 } from '@markprompt/core';
-import { MarkpromptOptions } from '@markprompt/react';
+// import { MarkpromptOptions } from '@markprompt/react';
+
+import { MarkpromptOptions } from '@/lib/constants';
 
 import { Database } from './supabase';
 

@@ -8,9 +8,8 @@ import {
 } from 'eventsource-parser';
 import type { NextRequest } from 'next/server';
 
-import {
+import I_DONT_KNOW, {
   CONTEXT_TOKENS_CUTOFF,
-  I_DONT_KNOW,
   MAX_PROMPT_LENGTH,
   STREAM_SEPARATOR,
 } from '@/lib/constants';

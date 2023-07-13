@@ -16,7 +16,7 @@ import { toast } from 'react-hot-toast';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-import { I_DONT_KNOW, STREAM_SEPARATOR } from '@/lib/constants';
+import I_DONT_KNOW, { STREAM_SEPARATOR } from '@/lib/constants';
 import { Theme } from '@/lib/themes';
 import { timeout } from '@/lib/utils';
 import { getApiUrl } from '@/lib/utils.edge';

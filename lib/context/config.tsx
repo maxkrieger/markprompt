@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { DEFAULT_MARKPROMPT_OPTIONS } from '@markprompt/react';
+// import { DEFAULT_MARKPROMPT_OPTIONS } from '@markprompt/react';
 import {
   createContext,
   FC,
@@ -10,6 +10,7 @@ import {
 
 import { SerializableMarkpromptOptions } from '@/types/types';
 
+import { DEFAULT_MARKPROMPT_OPTIONS } from '../constants';
 import useProject from '../hooks/use-project';
 import { useLocalStorage } from '../hooks/utils/use-localstorage';
 import {
