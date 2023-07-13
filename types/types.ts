@@ -109,31 +109,6 @@ export type PromptQueryHistogram = {
   count: number | null;
 };
 
-// This should be imported from @markprompt/core once it's published.
-// A prompt reference consists of a section reference (typically the
-// section heading) and the parent file info.
-export type FileSectionReference = {
-  file: FileReferenceFileData;
-} & FileSectionReferenceSectionData;
-
-export type FileSectionReferenceSectionData = {
-  meta?: {
-    leadHeading?: {
-      id?: string;
-      depth?: number;
-      value?: string;
-      slug?: string;
-    };
-  };
-};
-
-export type FileReferenceFileData = {
-  title?: string;
-  path: string;
-  meta?: any;
-  source: Source;
-};
-
 export type FileType = 'mdx' | 'mdoc' | 'md' | 'rst' | 'html' | 'txt';
 
 export type ProjectUsage = number;

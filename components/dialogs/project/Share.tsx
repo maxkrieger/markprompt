@@ -46,7 +46,7 @@ const Share = ({ children }: { children: ReactNode }) => {
           placeholder: markpromptOptions.prompt?.placeholder,
           modelConfig: markpromptOptions.prompt,
           iDontKnowMessage: markpromptOptions.prompt?.iDontKnowMessage,
-          referencesHeading: markpromptOptions.references?.referencesText,
+          referencesHeading: markpromptOptions.references?.heading,
           loadingHeading: markpromptOptions.references?.loadingText,
           includeBranding: markpromptOptions.showBranding,
         });

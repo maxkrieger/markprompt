@@ -1,3 +1,4 @@
+import { SearchResult, Source } from '@markprompt/core';
 import { createClient } from '@supabase/supabase-js';
 import FlexSearch from 'flexsearch';
 import { uniq } from 'lodash-es';
@@ -13,11 +14,7 @@ import {
 } from '@/lib/utils';
 import { safeParseInt, safeParseJSON } from '@/lib/utils.edge';
 import { Database } from '@/types/supabase';
-import {
-  FileReferenceFileData,
-  FileSectionMeta,
-  FileSectionReferenceSectionData,
-} from '@/types/types';
+import { FileSectionMeta } from '@/types/types';
 
 const MAX_SEARCH_RESULTS = 20;
 
@@ -34,31 +31,9 @@ type FTSFileTitleResult =
   Database['public']['Functions']['fts_file_title']['Returns'][number];
 
 type Index = FlexSearch.Document<
-  { id: string } & SearchResult,
+  { id: string } & Omit<SearchResult, 'snippet'>,
   ['file', 'meta', 'content', 'matchType']
 >;
-
-// TODO: These types should come from @markprompt/core
-
-type SearchResult = {
-  matchType: 'title' | 'leadHeading' | 'content';
-  file: FileReferenceFileData;
-} & SearchResultSection;
-
-type SearchResultSection = {
-  content?: string;
-  meta?: FileSectionReferenceSectionData['meta'];
-};
-
-type SourceType = 'github' | 'motif' | 'website' | 'file-upload' | 'api-upload';
-
-type Source = {
-  type: SourceType;
-  data: {
-    url?: string;
-    domain?: string;
-  };
-};
 
 type Data =
   | {
@@ -66,7 +41,9 @@ type Data =
       error?: string;
     }
   | {
-      data: SearchResult[];
+      // TODO: replace with plain `SearchResult` when `snippet` is
+      // an optional prop by default.
+      data: (Omit<SearchResult, 'snippet'> & { snippet?: string })[];
       debug?: any;
     };
 

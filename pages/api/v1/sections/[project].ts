@@ -1,4 +1,4 @@
-import { Source } from '@markprompt/core';
+import { FileSectionReference, Source } from '@markprompt/core';
 import { createClient } from '@supabase/supabase-js';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -15,7 +15,6 @@ import {
   ApiError,
   FileSectionMatchResult,
   FileSectionMeta,
-  FileSectionReference,
   Project,
 } from '@/types/types';
 

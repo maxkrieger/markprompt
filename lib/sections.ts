@@ -1,15 +1,13 @@
-import { OpenAIEmbeddingsModelId } from '@markprompt/core';
+import {
+  FileSectionReference,
+  OpenAIEmbeddingsModelId,
+} from '@markprompt/core';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { backOff } from 'exponential-backoff';
 import { CreateEmbeddingResponse } from 'openai';
 
 import { Database } from '@/types/supabase';
-import {
-  ApiError,
-  FileSectionMatchResult,
-  Project,
-  FileSectionReference,
-} from '@/types/types';
+import { ApiError, FileSectionMatchResult, Project } from '@/types/types';
 
 import { createEmbedding, createModeration } from './openai.edge';
 import { recordProjectTokenCount } from './tinybird';

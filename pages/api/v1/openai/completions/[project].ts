@@ -1,3 +1,4 @@
+import { FileSectionReference } from '@markprompt/core';
 import { createClient } from '@supabase/supabase-js';
 import { stripIndent } from 'common-tags';
 import {
@@ -32,7 +33,6 @@ import {
   ApiError,
   FileSectionMatchResult,
   FileSectionMeta,
-  FileSectionReference,
   OpenAIModelIdWithType,
   Project,
 } from '@/types/types';

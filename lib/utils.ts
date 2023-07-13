@@ -1,5 +1,6 @@
 import { createHash } from 'crypto';
 
+import { FileSectionReference, FileReferenceFileData } from '@markprompt/core';
 import slugify from '@sindresorhus/slugify';
 import confetti from 'canvas-confetti';
 import { format } from 'date-fns';
@@ -24,10 +25,8 @@ import { GitHubIcon } from '@/components/icons/GitHub';
 import { MotifIcon } from '@/components/icons/Motif';
 import {
   DateCountHistogramEntry,
-  FileReferenceFileData,
   FileSectionHeading,
   FileSectionMeta,
-  FileSectionReference,
   FileType,
   GitHubSourceDataType,
   HistogramStat,
