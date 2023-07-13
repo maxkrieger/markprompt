@@ -1,4 +1,4 @@
-import { Markprompt } from '@markprompt/react';
+// import { Markprompt } from '@markprompt/react';
 import * as Popover from '@radix-ui/react-popover';
 import { FC, ReactNode, useState } from 'react';
 
@@ -55,7 +55,7 @@ export const DocsPrompt: FC<DocsPromptProps> = ({ children, onOpenChange }) => {
                 }
               `}
             </style>
-            <Markprompt
+            {/* <Markprompt
               display="plain"
               showBranding={false}
               close={{
@@ -82,7 +82,7 @@ export const DocsPrompt: FC<DocsPromptProps> = ({ children, onOpenChange }) => {
               //     return '';
               //   },
               // }}
-            />
+            /> */}
           </div>
         </Popover.Content>
       </Popover.Portal>
