@@ -8,7 +8,8 @@ import {
 } from 'eventsource-parser';
 import type { NextRequest } from 'next/server';
 
-import I_DONT_KNOW, {
+import {
+  IDK_MESSAGE,
   CONTEXT_TOKENS_CUTOFF,
   MAX_PROMPT_LENGTH,
   STREAM_SEPARATOR,
@@ -116,7 +117,7 @@ const buildFullPrompt = (
 ) => {
   let _template = template.replace(
     iDontKnowTemplateKeyword,
-    iDontKnowMessage || I_DONT_KNOW,
+    iDontKnowMessage || IDK_MESSAGE,
   );
 
   if (template.includes(contextTemplateKeyword)) {
@@ -164,7 +165,7 @@ export default async function handler(req: NextRequest) {
     const iDontKnowMessage =
       (params.i_dont_know_message as string) || // v1
       (params.iDontKnowMessage as string) || // v0
-      I_DONT_KNOW;
+      IDK_MESSAGE;
     let stream = true;
     if (isFalsy(params.stream)) {
       stream = false;

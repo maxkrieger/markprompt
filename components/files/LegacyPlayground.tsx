@@ -16,7 +16,7 @@ import { toast } from 'react-hot-toast';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-import I_DONT_KNOW, { STREAM_SEPARATOR } from '@/lib/constants';
+import { IDK_MESSAGE, STREAM_SEPARATOR } from '@/lib/constants';
 import { Theme } from '@/lib/themes';
 import { timeout } from '@/lib/utils';
 import { getApiUrl } from '@/lib/utils.edge';
@@ -148,7 +148,7 @@ export const LegacyPlayground = forwardRef(
     const inputRef = useRef<HTMLInputElement>(null);
     const _didCompleteFirstQuery = useRef<boolean>(false);
     const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-    const _iDontKnowMessage = iDontKnowMessage || I_DONT_KNOW;
+    const _iDontKnowMessage = iDontKnowMessage || IDK_MESSAGE;
     const colors = isDark ? theme?.colors.dark : theme?.colors.light;
 
     useEffect(() => {
