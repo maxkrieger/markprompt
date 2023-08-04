@@ -39,6 +39,14 @@ a {
   @apply border-b border-dotted border-neutral-700 font-medium no-underline;
 }
 
+.prose :where(hr):not(:where([class~='not-prose'] *)) {
+  @apply border-neutral-900;
+}
+
+.markdown-container a {
+  @apply text-neutral-100 !important;
+}
+
 h1,
 h2,
 h3,

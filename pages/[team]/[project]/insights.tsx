@@ -1,16 +1,10 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { parseISO } from 'date-fns';
-import {
-  ArrowDown,
-  ArrowUp,
-  PanelRightIcon,
-  ThumbsDownIcon,
-  ThumbsUpIcon,
-} from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { ArrowDown, ArrowUp, ThumbsDownIcon, ThumbsUpIcon } from 'lucide-react';
+import dynamic from 'next/dynamic';
+import { useEffect, useMemo, useState } from 'react';
 
 import { Card } from '@/components/dashboard/Card';
-import QueryStat from '@/components/dialogs/project/QueryStat';
 import { QueriesDataTable } from '@/components/insights/queries/table';
 import { QueriesHistogram } from '@/components/insights/queries-histogram';
 import { TopReferences } from '@/components/insights/top-references';
@@ -26,6 +20,15 @@ import useTeam from '@/lib/hooks/use-team';
 import { canViewInsights, getAccessibleInsightsType } from '@/lib/stripe/tiers';
 import { useDebouncedState } from '@/lib/utils.react';
 import { DbQueryStat, PromptQueryStat } from '@/types/types';
+
+const Loading = <p className="p-4 text-sm text-neutral-500">Loading...</p>;
+
+const QueryStat = dynamic(
+  () => import('@/components/dialogs/project/QueryStat'),
+  {
+    loading: () => Loading,
+  },
+);
 
 export const PromptStatusTag = ({ noResponse }: { noResponse: boolean }) => {
   return (

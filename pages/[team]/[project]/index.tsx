@@ -17,7 +17,6 @@ import cn from 'classnames';
 import dayjs from 'dayjs';
 // Cf. https://github.com/iamkun/dayjs/issues/297#issuecomment-1202327426
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { isString } from 'lodash-es';
 import { MoreHorizontal, Globe, Upload, SettingsIcon } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { FC, useMemo, useState } from 'react';
@@ -41,9 +40,10 @@ import useTeam from '@/lib/hooks/use-team';
 import useUsage from '@/lib/hooks/use-usage';
 import {
   getAccessoryLabelForSource,
-  getFileNameForSourceAtPath,
+  getFileTitle,
   getIconForSource,
   getLabelForSource,
+  getNameForPath,
   getUrlPath,
   isUrl,
   pluralize,
@@ -172,18 +172,6 @@ const hasNonFileSources = (sources: DbSource[]) => {
   );
 };
 
-const getNameForPath = (
-  sources: DbSource[],
-  sourceId: DbSource['id'],
-  path: string,
-) => {
-  const source = sources.find((s) => s.id === sourceId);
-  if (!source) {
-    return path;
-  }
-  return getFileNameForSourceAtPath(source, path);
-};
-
 const Data = () => {
   const { team } = useTeam();
   const { project } = useProject();
@@ -246,59 +234,45 @@ const Data = () => {
         },
         footer: (info) => info.column.id,
       }),
-      columnHelper.accessor(
-        (row) => {
-          return {
-            fileId: row.id,
-            path: row.path,
-            title: row.meta?.title,
-            sourceId: row.source_id,
-            tokenCount: row.token_count,
-          };
+      columnHelper.accessor((row) => row, {
+        id: 'name',
+        header: () => <span>Name</span>,
+        cell: (info) => {
+          const value = info.getValue();
+          // Ensure compat with previously trained data, where we don't
+          // extract the title in the meta. Note that the title might be
+          // a non-string value as well, e.g. in the case of an html
+          // component.
+          const title = getFileTitle(value, sources);
+          return (
+            <button
+              className="w-full overflow-hidden truncate text-left outline-none"
+              onClick={() => {
+                if (!value.token_count) {
+                  toast.success(
+                    'To view the file content, retrain with the "force retrain" setting on.',
+                  );
+                  return;
+                }
+                setOpenFileId(value.id);
+                setEditorOpen(true);
+              }}
+            >
+              {title}
+            </button>
+          );
         },
-        {
-          id: 'name',
-          header: () => <span>Name</span>,
-          cell: (info) => {
-            const value = info.getValue();
-            // Ensure compat with previously trained data, where we don't
-            // extract the title in the meta. Note that the title might be
-            // a non-string value as well, e.g. in the case of an html
-            // component.
-            const title =
-              value?.title && isString(value.title)
-                ? value.title
-                : getNameForPath(sources, value.sourceId, value.path);
-            return (
-              <button
-                className="w-full overflow-hidden truncate text-left outline-none"
-                // onClick={() => {
-                //   if (!value.tokenCount) {
-                //     toast.success(
-                //       'To view the file content, retrain with the "force retrain" setting on.',
-                //     );
-                //     return;
-                //   }
-                //   setOpenFileId(value.fileId);
-                //   setEditorOpen(true);
-                // }}
-              >
-                {title}
-              </button>
-            );
-          },
-          footer: (info) => info.column.id,
-          sortingFn: (rowA, rowB, columnId) => {
-            const valueA: { sourceId: DbSource['id']; path: string } =
-              rowA.getValue(columnId);
-            const valueB: { sourceId: DbSource['id']; path: string } =
-              rowB.getValue(columnId);
-            const nameA = getNameForPath(sources, valueA.sourceId, valueA.path);
-            const nameB = getNameForPath(sources, valueB.sourceId, valueB.path);
-            return nameA.localeCompare(nameB);
-          },
+        footer: (info) => info.column.id,
+        sortingFn: (rowA, rowB, columnId) => {
+          const valueA: { sourceId: DbSource['id']; path: string } =
+            rowA.getValue(columnId);
+          const valueB: { sourceId: DbSource['id']; path: string } =
+            rowB.getValue(columnId);
+          const nameA = getNameForPath(sources, valueA.sourceId, valueA.path);
+          const nameB = getNameForPath(sources, valueB.sourceId, valueB.path);
+          return nameA.localeCompare(nameB);
         },
-      ),
+      }),
       columnHelper.accessor((row) => row.path, {
         id: 'path',
         header: () => <span>Path</span>,

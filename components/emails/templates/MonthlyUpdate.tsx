@@ -1,19 +1,16 @@
 import {
-  Button,
   Container,
-  Column,
   Heading,
   Hr,
   Img,
   Link,
-  Row,
   Section,
   Text,
 } from '@react-email/components';
 import { format } from 'date-fns';
 import { FC } from 'react';
 
-import { MarkdownContainer } from './MarkdownContainer';
+import { MarkdownEmailContainer } from './MarkdownContainer';
 import { Wrapper } from './Shared';
 import { SocialSection } from './SocialSection';
 
@@ -53,7 +50,7 @@ export const MonthlyUpdateTemplate: FC<MonthlyUpdateTemplateProps> = ({
           </span>
         </Heading>
         <Section className="prose prose-sm">
-          <MarkdownContainer markdown={markdown} />
+          <MarkdownEmailContainer markdown={markdown} />
         </Section>
         <Hr className="mt-8 border-neutral-200" />
         <SocialSection className="mt-8" />

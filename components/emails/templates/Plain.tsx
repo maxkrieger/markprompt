@@ -1,7 +1,7 @@
 import { Container, Section, Link, Text } from '@react-email/components';
 import { FC } from 'react';
 
-import { MarkdownContainer } from './MarkdownContainer';
+import { MarkdownEmailContainer } from './MarkdownContainer';
 import { Wrapper } from './Shared';
 
 type PlainTemplate = {
@@ -32,7 +32,7 @@ export const PlainTemplate: FC<PlainTemplate> = ({
     >
       <Container style={container}>
         <Section style={section}>
-          <MarkdownContainer markdown={markdown} />
+          <MarkdownEmailContainer markdown={markdown} />
         </Section>
         <Section>
           <Text>
