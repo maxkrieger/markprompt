@@ -1,7 +1,10 @@
 import { Heading, Img, Link, Text } from '@react-email/components';
+import { Language } from 'prism-react-renderer';
 import { FC } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+
+import { Code } from '@/components/ui/Code';
 
 type MarkdownContainerProps = {
   markdown: string;
@@ -46,6 +49,7 @@ export const MarkdownContainer: FC<MarkdownContainerProps> = ({
   markdown,
   components,
 }) => {
+  console.log('markdown', JSON.stringify(markdown, null, 2));
   return (
     <div className="markdown-container prose prose-sm prose-invert max-w-full">
       <ReactMarkdown
@@ -75,6 +79,17 @@ export const MarkdownContainer: FC<MarkdownContainerProps> = ({
               src={props.src as string}
             />
           ),
+          code: (props) => {
+            const match = /language-(\w+)/.exec(props.className || '');
+            return match ? (
+              <Code
+                language={(match[1] as Language) || 'javascript'}
+                code={(props.children?.[0] as string)?.trim() || ''}
+              />
+            ) : (
+              <code className={props.className} {...props} />
+            );
+          },
           ...components,
         }}
       >

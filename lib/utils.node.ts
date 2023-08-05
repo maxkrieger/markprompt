@@ -2,29 +2,11 @@
 import fs from 'fs';
 import type { Readable } from 'node:stream';
 
-import grayMatter from 'gray-matter';
-import yaml from 'js-yaml';
 import unzip from 'unzipper';
 
 import { FileData } from '@/types/types';
 
 import { shouldIncludeFileWithPath } from './utils';
-
-export const extractFrontmatter = (
-  source: string,
-): { [key: string]: string } => {
-  try {
-    const matter = grayMatter(source, {})?.matter;
-    if (matter) {
-      return yaml.load(matter, {
-        schema: yaml.JSON_SCHEMA,
-      }) as { [key: string]: string };
-    }
-  } catch {
-    // Do nothing
-  }
-  return {};
-};
 
 export const extractFileDataEntriesFromZip = async (
   path: string,

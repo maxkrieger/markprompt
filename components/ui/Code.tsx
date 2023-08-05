@@ -21,10 +21,10 @@ export const Code: FC<CodeProps> = ({
   return (
     <div className={className}>
       <Highlight {...defaultProps} code={code} language={language}>
-        {({ className, style, tokens, getLineProps, getTokenProps }) => (
+        {({ className: _className, tokens, getLineProps, getTokenProps }) => (
           //  style={style}
           <pre
-            className={`${className} ${
+            className={`${_className} ${
               !noPreWrap ? 'whitespace-pre-wrap' : ''
             }`}
           >

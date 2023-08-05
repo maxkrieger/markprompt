@@ -189,8 +189,6 @@ const LandingPage: FC<LandingPageProps> = ({ stars, status }) => {
               </h1>
               <p className="z-20 mt-8 mr-[40px] max-w-screen-md text-left text-base text-neutral-500 sm:mt-4 sm:text-lg">
                 <Balancer ratio={0.5}>
-                  {/* Expert tools and APIs to maintain technical content at scale,
-                  powered by AI. */}
                   Connect any source of content, from public websites to private
                   GitHub repos, configure the design and tone, and paste the
                   code to your website. In minutes, you have a chatbot that

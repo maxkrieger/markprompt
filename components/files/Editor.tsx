@@ -8,11 +8,15 @@ import useSWR from 'swr';
 import { formatShortDateTimeInTimeZone } from '@/lib/date';
 import useProject from '@/lib/hooks/use-project';
 import useSources from '@/lib/hooks/use-sources';
+import { convertToMarkdown } from '@/lib/markdown';
 import {
   fetcher,
   getFileTitle,
   getIconForSource,
   getLabelForSource,
+  getFileNameForSourceAtPath,
+  getFileType,
+  supportsFrontmatter,
 } from '@/lib/utils';
 import { DbFile } from '@/types/types';
 
@@ -36,8 +40,11 @@ export const Editor: FC<EditorProps> = ({ fileId }) => {
 
   const loading = !file && !error;
 
+  const source = useMemo(() => {
+    return sources?.find((s) => s.id === file?.source_id);
+  }, [sources, file?.source_id]);
+
   const SourceItem = useMemo(() => {
-    const source = sources.find((s) => s.id === file?.source_id);
     if (!source) {
       return <></>;
     }
@@ -50,15 +57,17 @@ export const Editor: FC<EditorProps> = ({ fileId }) => {
         </p>
       </div>
     );
-  }, [sources, file?.source_id]);
+  }, [source]);
 
-  const content = useMemo(() => {
-    if (!file?.raw_content) {
-      return '';
+  const { markdownContent, filename } = useMemo(() => {
+    if (!file?.raw_content || !source) {
+      return { markdownContent: '', filename: '' };
     }
-    const _matter = matter(file.raw_content);
-    return _matter.content.trim();
-  }, [file?.raw_content]);
+    const filename = getFileNameForSourceAtPath(source, file.path);
+    const m = matter(file.raw_content);
+    const markdownContent = convertToMarkdown(m.content.trim(), filename);
+    return { markdownContent, filename };
+  }, [file?.raw_content, file?.path, source]);
 
   if (loading) {
     return (
@@ -93,27 +102,31 @@ export const Editor: FC<EditorProps> = ({ fileId }) => {
         <div className="text-sm text-neutral-300">{SourceItem}</div>
         <div className="text-sm text-neutral-300">{file.path}</div>
       </div>
-      {file?.meta && Object.keys(file.meta).length > 0 && (
-        <div className="mt-4 grid grid-cols-1 gap-2 overflow-hidden border-b border-neutral-900 pb-4 sm:grid-cols-4">
-          {Object.keys(file.meta).map((k) => {
-            const value = (file.meta as any)[k];
-            let comp = undefined;
-            if (typeof value === 'string') {
-              comp = value;
-            } else {
-              comp = JSON.stringify(value);
-            }
-            return (
-              <Fragment key={`meta-${k}`}>
-                <p className="text-sm text-neutral-500">{k}</p>
-                <p className="text-sm text-neutral-300 sm:col-span-3">{comp}</p>
-              </Fragment>
-            );
-          })}
-        </div>
-      )}
+      {supportsFrontmatter(getFileType(filename)) &&
+        file?.meta &&
+        Object.keys(file.meta).length > 0 && (
+          <div className="mt-4 grid grid-cols-1 gap-2 overflow-hidden border-b border-neutral-900 pb-4 sm:grid-cols-4">
+            {Object.keys(file.meta).map((k) => {
+              const value = (file.meta as any)[k];
+              let comp = undefined;
+              if (typeof value === 'string') {
+                comp = value;
+              } else {
+                comp = JSON.stringify(value);
+              }
+              return (
+                <Fragment key={`meta-${k}`}>
+                  <p className="text-sm text-neutral-500">{k}</p>
+                  <p className="text-sm text-neutral-300 sm:col-span-3">
+                    {comp}
+                  </p>
+                </Fragment>
+              );
+            })}
+          </div>
+        )}
       <div className="mt-8">
-        <MarkdownContainer markdown={content} />
+        <MarkdownContainer markdown={markdownContent} />
       </div>
     </div>
   );

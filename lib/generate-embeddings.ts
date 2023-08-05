@@ -1,28 +1,13 @@
-import Markdoc from '@markdoc/markdoc';
 import type { SupabaseClient } from '@supabase/auth-helpers-nextjs';
-import { load } from 'cheerio';
 import { backOff } from 'exponential-backoff';
-import type { Content, Root } from 'mdast';
-import { toMarkdown } from 'mdast-util-to-markdown';
-import { toString } from 'mdast-util-to-string';
-import remarkFrontmatter from 'remark-frontmatter';
-import remarkMdx from 'remark-mdx';
-import remarkParse from 'remark-parse';
-import remarkStringify from 'remark-stringify';
-import TurndownService from 'turndown';
-import { unified } from 'unified';
-import { u } from 'unist-builder';
-import { filter } from 'unist-util-filter';
 
 import { CONTEXT_TOKENS_CUTOFF, MIN_CONTENT_LENGTH } from '@/lib/constants';
 import { createEmbedding } from '@/lib/openai.edge';
 import {
   createChecksum,
   getFileType,
-  inferFileTitle,
   splitIntoSubstringsOfMaxLength,
 } from '@/lib/utils';
-import { extractFrontmatter } from '@/lib/utils.node';
 import { Database } from '@/types/supabase';
 import {
   API_ERROR_ID_CONTENT_TOKEN_QUOTA_EXCEEDED,
@@ -36,258 +21,17 @@ import {
   geLLMInfoFromModel,
 } from '@/types/types';
 
-import { rstToHTML } from './converters/rst-to-html';
-import { remarkLinkRewrite } from './remark/remark-link-rewrite';
+import {
+  augmentMetaWithTitle,
+  htmlToFileSectionData,
+  markdocToFileSectionData,
+  markdownToFileSectionData,
+  rstToFileSectionData,
+} from './markdown';
 import { MarkpromptConfig } from './schema';
 import { tokensToApproxParagraphs } from './stripe/tiers';
 import { getTokenAllowanceInfo } from './supabase';
 import { recordProjectTokenCount } from './tinybird';
-
-const defaultFileSectionsData: FileSectionsData = {
-  sections: [],
-  meta: { title: 'Untitled' },
-  leadFileHeading: undefined,
-};
-
-const turndown = new TurndownService({
-  headingStyle: 'atx',
-  codeBlockStyle: 'fenced',
-});
-
-turndown.addRule('pre', {
-  filter: 'pre',
-  replacement: (content: string, node: any) => {
-    const lang = node.getAttribute('data-language') || '';
-    return `\n\n\`\`\`${lang}\n${content.trim()}\n\`\`\`\n\n`;
-  },
-});
-
-const splitTreeBy = <T extends Content>(
-  tree: Root,
-  predicate: (node: Content) => boolean,
-): {
-  predicateNode: T;
-  tree: Root;
-}[] => {
-  return tree.children.reduce<{ predicateNode: T; tree: Root }[]>(
-    (trees, node) => {
-      const [lastTree] = trees.slice(-1);
-
-      if (!lastTree || predicate(node)) {
-        const tree: Root = u('root', [node]);
-        return trees.concat({ predicateNode: node as T, tree });
-      }
-
-      lastTree.tree.children.push(node);
-      return trees;
-    },
-    [],
-  );
-};
-
-const getProcessor = (withMdx: boolean, markpromptConfig: MarkpromptConfig) => {
-  let chain = unified();
-
-  if (markpromptConfig.processorOptions?.linkRewrite) {
-    chain.use(remarkLinkRewrite, markpromptConfig.processorOptions.linkRewrite);
-  }
-
-  chain
-    .use(remarkParse)
-    .use(remarkStringify)
-    .use(remarkFrontmatter, ['yaml', 'toml']);
-
-  if (withMdx) {
-    chain = chain.use(remarkMdx);
-  }
-
-  return chain;
-};
-
-const augmentMetaWithTitle = (
-  meta: {
-    [key: string]: string;
-  },
-  leadFileHeading: string | undefined,
-  filePath: string,
-) => {
-  if (meta.title) {
-    return meta;
-  }
-
-  if (leadFileHeading) {
-    return { ...meta, title: leadFileHeading };
-  }
-
-  if (filePath) {
-    return { ...meta, title: inferFileTitle(meta, filePath) };
-  }
-
-  return { ...meta, title: defaultFileSectionsData.meta.title };
-};
-
-// Use `asMDX = false` for Markdoc content. What might happen in Markdoc
-// is that the page contains a statement like `{HI_THERE}`, which is
-// rendered verbatim in Markdown/Markdoc. It's also not a problem à priori
-// for MDX, since it's semantically correct MDX (no eval is happening here).
-// However, specifically for `{HI_THERE}` with an underscore, the Markdoc
-// transform will escape the underscore, turning it into `{HI\_THERE}`, and
-// then it's actually semantically incorrect MDX, because what goes inside the
-// curly braces is treated as a variable/expression, and `HI\_THERE` is
-// no a valid JS variable/expression, so the parsing will fail.
-// Similarly, statements like "<10" are valid Markdown/Markdoc, but not
-// valid MDX (https://github.com/micromark/micromark-extension-mdx-jsx/issues/7)
-// and we don't want this to break Markdoc.
-const processMarkdown = (
-  content: string,
-  asMDX: boolean,
-  markpromptConfig: MarkpromptConfig,
-): FileSectionsData | undefined => {
-  const meta = extractFrontmatter(content);
-
-  let tree: Root | undefined = undefined;
-
-  const setTree = () => (t: Root) => {
-    tree = t;
-  };
-
-  try {
-    getProcessor(true, markpromptConfig).use(setTree).processSync(content);
-  } catch {
-    try {
-      getProcessor(false, markpromptConfig).use(setTree).processSync(content);
-    } catch {
-      //
-    }
-  }
-
-  if (!tree) {
-    // Sometimes, only metadata is included and content is empty,
-    // which is fine.
-    return { sections: [], meta, leadFileHeading: undefined };
-  }
-
-  // Remove all JSX and expressions from MDX
-  const mdTree = filter(
-    tree,
-    (node) =>
-      ![
-        'yaml',
-        'toml',
-        'mdxjsEsm',
-        'mdxJsxFlowElement',
-        'mdxJsxTextElement',
-        'mdxFlowExpression',
-        'mdxTextExpression',
-      ].includes(node.type),
-  );
-
-  if (!mdTree) {
-    // Sometimes, only metadata is included and content is empty,
-    // which is fine.
-    return { sections: [], meta, leadFileHeading: undefined };
-  }
-
-  const sectionTrees = splitTreeBy(mdTree, (node) => node.type === 'heading');
-
-  const sections: FileSectionData[] = sectionTrees.map((tree) => {
-    const node = tree.predicateNode as any;
-    return {
-      content: toMarkdown(tree.tree),
-      leadHeading:
-        node.type === 'heading'
-          ? { value: toString(node), depth: node.depth }
-          : undefined,
-    };
-  });
-
-  const leadFileHeading = sections[0]?.leadHeading?.value;
-
-  return { sections, meta, leadFileHeading };
-};
-
-const processMarkdoc = (
-  content: string,
-  markpromptConfig: MarkpromptConfig,
-): FileSectionsData | undefined => {
-  // In Markdoc, we start by extracting the frontmatter, because
-  // the process is then to transform the Markdoc to HTML, and then
-  // pass it through the Markdown processor. This erases traces of
-  // the frontmatter. However, the frontmatter may not include
-  // a title, which we will obtain from the Markdown processing.
-  const meta = extractFrontmatter(content);
-  const ast = Markdoc.parse(content);
-  // In Markdoc, we make an exception and transform {% img %}
-  // and {% image %} tags to <img> html since this is a common
-  // use as an improvement to the ![]() Markdown tag. We could
-  // offer to pass such rules via the API call.
-  const transformed = Markdoc.transform(ast, {
-    tags: {
-      img: { render: 'img', attributes: { src: { type: String } } },
-      image: { render: 'img', attributes: { src: { type: String } } },
-    },
-  });
-  const html = Markdoc.renderers.html(transformed) || '';
-  const md = turndown.turndown(html);
-  const fileSectionData = processMarkdown(md, false, markpromptConfig);
-
-  if (!fileSectionData) {
-    return undefined;
-  }
-
-  return { ...fileSectionData, meta };
-};
-
-const processRST = (
-  content: string,
-  markpromptConfig: MarkpromptConfig,
-): FileSectionsData | undefined => {
-  const html = rstToHTML(content);
-  const md = turndown.turndown(html);
-  const fileSectionData = processMarkdown(md, false, markpromptConfig);
-
-  if (!fileSectionData) {
-    return undefined;
-  }
-
-  return { ...fileSectionData, meta: {} };
-};
-
-const htmlExcludeTags = ['head', 'script', 'style', 'nav', 'footer', 'aside'];
-
-const processHtml = (
-  content: string,
-  markpromptConfig: MarkpromptConfig,
-): FileSectionsData | undefined => {
-  const $ = load(content);
-
-  const title = $('title').text();
-
-  htmlExcludeTags.forEach((tag) => {
-    $(tag).remove();
-  });
-
-  let cleanedHtml = $('main').html();
-  if (!cleanedHtml) {
-    cleanedHtml = $('body').html();
-  }
-
-  let fileSectionsData: FileSectionsData | undefined = defaultFileSectionsData;
-
-  if (cleanedHtml) {
-    const md = turndown.turndown(cleanedHtml);
-    fileSectionsData = processMarkdown(md, false, markpromptConfig);
-  }
-
-  if (!fileSectionsData) {
-    return undefined;
-  }
-
-  return {
-    ...fileSectionsData,
-    meta: { title },
-  };
-};
 
 const TOKEN_CUTOFF_ADJUSTED = CONTEXT_TOKENS_CUTOFF * 0.8;
 const APPROX_CHARS_PER_TOKEN = 4;
@@ -346,19 +90,26 @@ const processFileData = (
   let fileSectionsData: FileSectionsData | undefined;
   const fileType = getFileType(file.name);
   if (fileType === 'mdoc') {
-    fileSectionsData = processMarkdoc(file.content, markpromptConfig);
+    fileSectionsData = markdocToFileSectionData(file.content, markpromptConfig);
   } else if (fileType === 'rst') {
-    fileSectionsData = processRST(file.content, markpromptConfig);
+    fileSectionsData = rstToFileSectionData(file.content, markpromptConfig);
   } else if (fileType === 'html') {
-    fileSectionsData = processHtml(file.content, markpromptConfig);
+    fileSectionsData = htmlToFileSectionData(file.content, markpromptConfig);
   } else {
     try {
-      fileSectionsData = processMarkdown(file.content, true, markpromptConfig);
+      fileSectionsData = markdownToFileSectionData(
+        file.content,
+        true,
+        markpromptConfig,
+      );
     } catch (e) {
       // Some repos use the .md extension for Markdoc, and this
       // would break if parsed as Markdown (using MDX), so attempt with Markoc
       // parsing here.
-      fileSectionsData = processMarkdoc(file.content, markpromptConfig);
+      fileSectionsData = markdocToFileSectionData(
+        file.content,
+        markpromptConfig,
+      );
     }
   }
 
@@ -492,7 +243,6 @@ export const generateFileEmbeddingsAndSaveFile = async (
       .update({ meta, checksum, raw_content: file.content })
       .eq('id', fileId);
   } else {
-    console.log('[EMBEDDING] Create file at path', file.path);
     fileId = await createFile(
       supabaseAdmin,
       projectId,
@@ -602,7 +352,6 @@ export const generateFileEmbeddingsAndSaveFile = async (
   const { error } = await supabaseAdmin
     .from('file_sections')
     .insert(embeddingsData);
-  console.log('[EMBEDDING] Saving sections', embeddingsData.length);
 
   if (error) {
     console.error(
@@ -618,10 +367,6 @@ export const generateFileEmbeddingsAndSaveFile = async (
     for (const data of embeddingsData) {
       await supabaseAdmin.from('file_sections').insert([data]);
     }
-    console.log(
-      '[EMBEDDING] Saving sections individually',
-      embeddingsData.length,
-    );
   }
 
   if (!byoOpenAIKey) {
