@@ -1,29 +1,27 @@
-import { OpenAIModelId } from '@markprompt/core';
 import * as Select from '@radix-ui/react-select';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { FC } from 'react';
 
 import { useConfigContext } from '@/lib/context/config';
-import { SUPPORTED_MODELS } from '@/types/types';
 
 import { SelectItem } from '../ui/Select';
 
-type ModelPickerProps = {
+type LayoutPickerProps = {
   className?: string;
 };
 
-export const ModelPicker: FC<ModelPickerProps> = () => {
+export const LayoutPicker: FC<LayoutPickerProps> = () => {
   const { markpromptOptions, setMarkpromptOptions } = useConfigContext();
 
   return (
     <Select.Root
-      value={markpromptOptions.prompt?.model}
+      value={markpromptOptions.chat?.enabled ? 'chat' : 'completion'}
       onValueChange={(value) => {
         setMarkpromptOptions({
           ...markpromptOptions,
-          prompt: {
-            ...markpromptOptions.prompt,
-            model: value as OpenAIModelId,
+          defaultView: value === 'chat' ? 'chat' : 'prompt',
+          chat: {
+            enabled: value === 'chat',
           },
         });
       }}
@@ -33,7 +31,7 @@ export const ModelPicker: FC<ModelPickerProps> = () => {
         aria-label="Theme"
       >
         <div className="flex-grow truncate whitespace-nowrap text-left">
-          <Select.Value placeholder="Pick a model…" />
+          <Select.Value placeholder="Pick a layout" />
         </div>
         <Select.Icon className="flex-none text-neutral-500">
           <ChevronDown className="h-4 w-4" />
@@ -46,13 +44,8 @@ export const ModelPicker: FC<ModelPickerProps> = () => {
           </Select.ScrollUpButton>
           <Select.Viewport>
             <Select.Group>
-              {SUPPORTED_MODELS.chat_completions.map((m) => {
-                return (
-                  <SelectItem key={m} value={m}>
-                    {m}
-                  </SelectItem>
-                );
-              })}
+              <SelectItem value="completion">Completion</SelectItem>
+              <SelectItem value="chat">Chat</SelectItem>
             </Select.Group>
           </Select.Viewport>
           <Select.ScrollDownButton className="flex items-center justify-center p-2">
