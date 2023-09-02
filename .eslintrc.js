@@ -48,5 +48,13 @@ module.exports = {
         '@typescript-eslint/no-var-requires': 'off',
       },
     },
+    {
+      files: ['*.test.ts', '*.test.tsx'],
+      extends: [
+        'plugin:jest-dom/recommended',
+        'plugin:testing-library/react',
+        'plugin:vitest/recommended',
+      ],
+    },
   ],
 };

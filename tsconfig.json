@@ -31,7 +31,8 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "schema/tables.sql"
+    "schema/tables.sql",
+    "./vitest.setup.ts"
   ],
   "exclude": ["node_modules"]
 }
