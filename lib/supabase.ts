@@ -17,11 +17,7 @@ import {
 
 import { DEFAULT_MARKPROMPT_CONFIG } from './constants';
 import { MarkpromptConfig } from './schema';
-import {
-  PlanDetails,
-  TeamTierInfo,
-  getEmbeddingTokensAllowance,
-} from './stripe/tiers';
+import { PlanDetails, getEmbeddingTokensAllowance } from './stripe/tiers';
 import { generateKey } from './utils';
 
 export const getBYOOpenAIKey = async (
@@ -69,7 +65,7 @@ export const getProjectConfigData = async (
 export const getTeamTierInfo = async (
   supabaseAdmin: SupabaseClient<Database>,
   projectId: Project['id'],
-): Promise<TeamTierInfo | undefined> => {
+) => {
   const { data } = await supabaseAdmin
     .from('teams')
     .select('stripe_price_id,plan_details,projects!inner (id)')
@@ -80,7 +76,7 @@ export const getTeamTierInfo = async (
   return data
     ? {
         stripe_price_id: data.stripe_price_id,
-        plan_details: data.plan_details as PlanDetails,
+        plan_details: data.plan_details as unknown as PlanDetails,
       }
     : undefined;
 };
@@ -177,12 +173,12 @@ export const getSource = async (
       return sources[0];
     case 'github':
       return sources.find((s) => {
-        const _data = s.data as GitHubSourceDataType;
+        const _data = s.data as unknown as GitHubSourceDataType;
         return _data.url === data.url && _data.branch === data.branch;
       });
     case 'motif': {
       return sources.find((s) => {
-        const _data = s.data as MotifSourceDataType;
+        const _data = s.data as unknown as MotifSourceDataType;
         return (
           _data.projectDomain && _data.projectDomain === data.projectDomain
         );
@@ -190,7 +186,7 @@ export const getSource = async (
     }
     case 'website': {
       return sources.find((s) => {
-        const _data = s.data as WebsiteSourceDataType;
+        const _data = s.data as unknown as WebsiteSourceDataType;
         return _data.url && _data.url === data.url;
       });
     }
@@ -290,7 +286,7 @@ export const getTokenAllowanceInfo = async (
   const usedTokens = teamUsageInfo?.team_token_count || 0;
   const tokenAllowance = getEmbeddingTokensAllowance({
     stripe_price_id: teamUsageInfo?.stripe_price_id,
-    plan_details: teamUsageInfo?.plan_details as PlanDetails,
+    plan_details: teamUsageInfo?.plan_details,
   });
   const numRemainingTokensOnPlan = Math.max(0, tokenAllowance - usedTokens);
   return { numRemainingTokensOnPlan, usedTokens, tokenAllowance };

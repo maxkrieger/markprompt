@@ -214,16 +214,18 @@ const getCustomSubscribedTier = (
   if (!teamTierInfo.stripe_price_id) {
     return undefined;
   }
-  return (teamTierInfo.plan_details as PlanDetails)?.tiers?.find((t) => {
-    return (
-      t.price?.monthly?.priceId === teamTierInfo.stripe_price_id ||
-      t.price?.yearly?.priceId === teamTierInfo.stripe_price_id
-    );
-  });
+  return (teamTierInfo.plan_details as unknown as PlanDetails)?.tiers?.find(
+    (t) => {
+      return (
+        t.price?.monthly?.priceId === teamTierInfo.stripe_price_id ||
+        t.price?.yearly?.priceId === teamTierInfo.stripe_price_id
+      );
+    },
+  );
 };
 
 export const getOfferedCustomTiers = (teamTierInfo: TeamTierInfo): Tier[] => {
-  return (teamTierInfo?.plan_details as PlanDetails)?.tiers || [];
+  return (teamTierInfo?.plan_details as unknown as PlanDetails)?.tiers || [];
 };
 
 const getProTier = (): Tier => {
@@ -247,7 +249,7 @@ export const getTier = (teamTierInfo: TeamTierInfo): Tier => {
     return tier || getProTier();
   }
 
-  const planDetails = teamTierInfo.plan_details as PlanDetails;
+  const planDetails = teamTierInfo.plan_details as unknown as PlanDetails;
   if (planDetails?.trial) {
     return { id: 'custom', ...planDetails };
   }
@@ -277,7 +279,7 @@ const getTierDetails = (teamTierInfo: TeamTierInfo): TierDetails => {
   }
   const tierDetails = getTier(teamTierInfo)?.details || {};
   const trialTier =
-    (teamTierInfo.plan_details as PlanDetails)?.trial?.details || {};
+    (teamTierInfo.plan_details as unknown as PlanDetails)?.trial?.details || {};
   return deepMerge(tierDetails, trialTier);
 };
 
