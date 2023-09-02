@@ -1,8 +1,8 @@
 import { FC } from 'react';
 
-type CheckFullIconProps = {
+interface CheckFullIconProps {
   className?: string;
-};
+}
 
 export const CheckFullIcon: FC<CheckFullIconProps> = ({ className }) => {
   return (

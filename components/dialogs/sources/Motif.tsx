@@ -49,10 +49,10 @@ const _addSource = async (
   }
 };
 
-type MotifSourceProps = {
+interface MotifSourceProps {
   clearPrevious?: boolean;
   onDidAddSource: () => void;
-};
+}
 
 const MotifSource: FC<MotifSourceProps> = ({
   clearPrevious,

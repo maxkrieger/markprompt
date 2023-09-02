@@ -2,12 +2,12 @@ import { FC } from 'react';
 
 import { TemplateId, getTemplate } from '@/lib/email';
 
-type NewsletterEmailProps = {
+interface NewsletterEmailProps {
   preview: string;
   markdown: string;
   date: Date;
   templateId: TemplateId;
-};
+}
 
 // We create the email component as a standalone component, instead of
 // creating it in the page itself, to avoid hydration errors (we

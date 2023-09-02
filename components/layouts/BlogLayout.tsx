@@ -26,17 +26,17 @@ import { Video } from '../ui/Video';
 
 dayjs.extend(localizedFormat);
 
-type BlogLayoutProps = {
+interface BlogLayoutProps {
   content: RenderableTreeNode;
   toc: TOC;
   frontmatter: any;
-};
+}
 
-type CloudinaryImageProps = {
+interface CloudinaryImageProps {
   src: string;
   alt: string;
   className?: string;
-};
+}
 
 export const CloudinaryImage: FC<CloudinaryImageProps> = ({
   src,

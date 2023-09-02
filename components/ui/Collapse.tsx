@@ -4,9 +4,9 @@ import cn from 'classnames';
 import { ChevronDown } from 'lucide-react';
 import React, { FC, forwardRef, ReactNode } from 'react';
 
-type CollapseGroupProps = {
+interface CollapseGroupProps {
   children: ReactNode;
-};
+}
 
 export const CollapseGroup: FC<CollapseGroupProps> = ({ children }) => (
   <Accordion.Root className="w-full rounded-md" type="single" collapsible>
@@ -14,10 +14,10 @@ export const CollapseGroup: FC<CollapseGroupProps> = ({ children }) => (
   </Accordion.Root>
 );
 
-type CollapseProps = {
+interface CollapseProps {
   title: string;
   children: ReactNode;
-};
+}
 
 export const Collapse: FC<CollapseProps> = ({ title, children }) => {
   return (

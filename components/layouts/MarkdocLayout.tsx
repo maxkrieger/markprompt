@@ -21,12 +21,16 @@ import React, {
 import Button from '../ui/Button';
 import { CodePanel } from '../ui/Code';
 
-type MarkdocCodeFenceProps = {
+interface MarkdocCodeFenceProps {
   children: ReactNode;
   language: Language;
-};
+}
 
-type MarkdocHeading = { title: string; id: string; level: number };
+interface MarkdocHeading {
+  title: string;
+  id: string;
+  level: number;
+}
 
 const collectMarkdocHeadings = (
   node: any,
@@ -51,7 +55,11 @@ const collectMarkdocHeadings = (
   return sections;
 };
 
-export type TOCEntry = { title: string; slug: string; children?: TOC };
+export interface TOCEntry {
+  title: string;
+  slug: string;
+  children?: TOC;
+}
 export type TOC = TOCEntry[];
 
 export const createTOC = (node: any): TOC => {
@@ -86,7 +94,7 @@ export const createTOC = (node: any): TOC => {
 
 const generateID = (
   children: RenderableTreeNode[],
-  attributes: { [key: string]: SchemaAttribute },
+  attributes: Record<string, SchemaAttribute>,
 ) => {
   if (attributes.id && typeof attributes.id === 'string') {
     return attributes.id;
@@ -239,11 +247,11 @@ export const Fence = (props: MarkdocCodeFenceProps) => {
   );
 };
 
-type ContentHeading = {
+interface ContentHeading {
   id: string;
   top: number;
   level: number;
-};
+}
 
 export const useTableOfContents = (toc: TOC) => {
   const [currentSection, setCurrentSection] = useState(toc[0]?.slug);
@@ -305,10 +313,10 @@ export const useTableOfContents = (toc: TOC) => {
   return { currentSection, registerHeading, unregisterHeading };
 };
 
-type TableOfContentsProps = {
+interface TableOfContentsProps {
   toc: TOC;
   currentSection: string;
-};
+}
 
 export const TableOfContents: FC<TableOfContentsProps> = ({
   toc,
@@ -366,11 +374,11 @@ export const TableOfContents: FC<TableOfContentsProps> = ({
   );
 };
 
-type ProseContainer = {
+interface ProseContainer {
   width?: 'base' | 'md' | 'lg' | 'xl';
   print?: boolean;
   children?: ReactNode;
-};
+}
 
 export const ProseContainer: FC<ProseContainer> = ({
   width = 'base',

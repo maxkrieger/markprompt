@@ -56,11 +56,11 @@ const _addSource = async (
   }
 };
 
-type WebsiteSourceProps = {
+interface WebsiteSourceProps {
   clearPrevious?: boolean;
   openPricingAsDialog?: boolean;
   onDidAddSource: () => void;
-};
+}
 
 const WebsiteSource: FC<WebsiteSourceProps> = ({
   clearPrevious,

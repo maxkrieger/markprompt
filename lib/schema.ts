@@ -2,13 +2,13 @@ import Ajv, { JTDSchemaType } from 'ajv/dist/jtd';
 
 import { RemarkLinkRewriteOptions } from './remark/remark-link-rewrite';
 
-export type MarkpromptConfig = {
+export interface MarkpromptConfig {
   include?: string[];
   exclude?: string[];
   processorOptions?: {
     linkRewrite?: RemarkLinkRewriteOptions;
   };
-};
+}
 
 export const MARKPROMPT_CONFIG_SCHEMA: JTDSchemaType<MarkpromptConfig> = {
   optionalProperties: {

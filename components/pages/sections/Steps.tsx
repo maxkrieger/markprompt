@@ -84,13 +84,13 @@ const SourceIcon = ({
   );
 };
 
-type StepProps = {
+interface StepProps {
   title: string | ReactNode;
   description: string;
   Icon: JSXElementConstructor<any>;
   position: 'left' | 'middle' | 'right';
   children?: ReactNode;
-};
+}
 
 const Step = ({ title, description, Icon, position, children }: StepProps) => {
   return (

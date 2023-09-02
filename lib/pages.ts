@@ -62,9 +62,9 @@ const getPageFrontmatter = async (pageId: string) => {
     : {};
 };
 
-export const getPageMetadataStaticProps = async (pageIds: {
-  [key: string]: string;
-}) => {
+export const getPageMetadataStaticProps = async (
+  pageIds: Record<string, string>,
+) => {
   const metadata: any = await Promise.all(
     Object.keys(pageIds).map(async (path) => {
       const frontmatter = await getPageFrontmatter(pageIds[path]);

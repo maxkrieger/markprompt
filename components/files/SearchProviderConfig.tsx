@@ -12,9 +12,9 @@ import Input from '../ui/Input';
 import { SelectItem } from '../ui/Select';
 import { NoAutoTextArea } from '../ui/TextArea';
 
-type SearchProviderConfigProps = {
+interface SearchProviderConfigProps {
   className?: string;
-};
+}
 
 export const SearchProviderConfig: FC<SearchProviderConfigProps> = () => {
   const { markpromptOptions, setMarkpromptOptions } = useConfigContext();

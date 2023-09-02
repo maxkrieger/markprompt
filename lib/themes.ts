@@ -1,4 +1,4 @@
-export type ThemeColors = {
+export interface ThemeColors {
   background: string;
   foreground: string;
   muted: string;
@@ -14,16 +14,16 @@ export type ThemeColors = {
   secondaryHighlight: string;
   overlay: string;
   ring: string;
-};
+}
 
-export type ThemeDimensions = {
+export interface ThemeDimensions {
   radius: string;
-};
+}
 
 export type ThemeColorKeys = keyof ThemeColors;
 export type ThemeDimensionKeys = keyof ThemeDimensions;
 
-export type Theme = {
+export interface Theme {
   name: string;
   isCustom?: boolean;
   size?: 'sm' | 'base';
@@ -32,7 +32,7 @@ export type Theme = {
     dark: ThemeColors;
   };
   dimensions: ThemeDimensions;
-};
+}
 
 export const defaultTheme: Theme = {
   name: 'Default',

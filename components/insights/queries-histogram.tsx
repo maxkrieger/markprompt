@@ -23,11 +23,11 @@ import { DateCountHistogramEntry, DateGranularity } from '@/types/types';
 import BarChart from '../charts/bar-chart';
 import { SkeletonTable } from '../ui/Skeletons';
 
-type QueriesHistogramProps = {
+interface QueriesHistogramProps {
   data: DateCountHistogramEntry[];
   dateRange?: DateRange;
   loading?: boolean;
-};
+}
 
 const getHistogram = (
   data: DateCountHistogramEntry[],

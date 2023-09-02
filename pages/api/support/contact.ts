@@ -7,10 +7,10 @@ import { isValidEmail } from '@/lib/utils';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-type Data = {
+interface Data {
   data?: CreateEmailResponse;
   error?: any;
-};
+}
 
 const allowedMethods = ['POST'];
 

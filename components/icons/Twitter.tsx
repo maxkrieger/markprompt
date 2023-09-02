@@ -1,8 +1,8 @@
 import { FC } from 'react';
 
-type TwitterIconProps = {
+interface TwitterIconProps {
   className?: string;
-};
+}
 
 export const TwitterIcon: FC<TwitterIconProps> = ({ className }) => {
   return (

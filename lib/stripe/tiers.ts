@@ -3,23 +3,23 @@ import { DbTeam } from '@/types/types';
 import { deepMerge } from '../utils.edge';
 import { roundToLowerOrderDecimal } from '../utils.nodeps';
 
-type Price = {
+interface Price {
   amount: number;
   priceId: string;
-};
+}
 
-export type PlanDetails = {
+export interface PlanDetails {
   // When a team has not signed up for a tier, these options are
   // enabled by default, e.g. during a testing period.
   trial?: Omit<Tier, 'id'> & { expires?: string };
   // These tiers are displayed in the Plan screen, offered as options
   // to a team, in addition to the default ones.
   tiers: Tier[];
-};
+}
 
 export type InsightsType = 'basic' | 'advanced';
 
-export type TierDetails = {
+export interface TierDetails {
   quotas?: { embeddings?: number; completions?: number };
   features?: {
     insights?: { type: InsightsType };
@@ -30,9 +30,9 @@ export type TierDetails = {
   };
   maxProjects?: number;
   maxTeamMembers?: number;
-};
+}
 
-export type Tier = {
+export interface Tier {
   id: 'hobby' | 'starter' | 'pro' | 'placeholder-enterprise' | 'custom';
   name?: string;
   description?: string;
@@ -42,7 +42,7 @@ export type Tier = {
     yearly?: Price;
   };
   details?: TierDetails;
-};
+}
 
 export type TeamTierInfo = Pick<DbTeam, 'stripe_price_id' | 'plan_details'>;
 

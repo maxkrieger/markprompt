@@ -8,12 +8,12 @@ import {
 } from 'lucide-react';
 import { ReactNode, useEffect, useState } from 'react';
 
-type SearchResult = {
+interface SearchResult {
   highlighted?: boolean;
   type: 'page' | 'section';
   title: ReactNode;
   heading?: string;
-};
+}
 
 const sampleSearchResults: SearchResult[] = [
   {

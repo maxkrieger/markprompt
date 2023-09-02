@@ -15,9 +15,9 @@ import { DocsPrompt } from '../ui/DocsPrompt';
 import { ContactWindow } from '../user/ChatWindow';
 import ProfileMenu from '../user/ProfileMenu';
 
-type AppNavbarProps = {
+interface AppNavbarProps {
   animated?: boolean;
-};
+}
 
 export const AppNavbar: FC<AppNavbarProps> = ({ animated }) => {
   const { user, loading: loadingUser } = useUser();

@@ -4,13 +4,13 @@ import { visit } from 'unist-util-visit';
 
 const EXTERNAL_URL_REGEX = /^https?:\/\//;
 
-export type RemarkLinkRewriteOptions = {
+export interface RemarkLinkRewriteOptions {
   rules: {
     pattern: string;
     replace: string;
   }[];
   excludeExternalLinks?: boolean;
-};
+}
 
 export const remarkLinkRewrite: Plugin<[RemarkLinkRewriteOptions], Root> = ({
   rules,

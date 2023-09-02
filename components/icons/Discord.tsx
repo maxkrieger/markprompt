@@ -1,8 +1,8 @@
 import { FC } from 'react';
 
-type DiscordIconProps = {
+interface DiscordIconProps {
   className?: string;
-};
+}
 
 export const DiscordIcon: FC<DiscordIconProps> = ({ className }) => {
   return (

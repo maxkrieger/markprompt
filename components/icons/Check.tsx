@@ -1,8 +1,8 @@
 import { FC } from 'react';
 
-type CheckIconProps = {
+interface CheckIconProps {
   className?: string;
-};
+}
 
 export const CheckIcon: FC<CheckIconProps> = ({ className }) => {
   return (

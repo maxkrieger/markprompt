@@ -4,11 +4,11 @@ import { FC } from 'react';
 import { MarkdownEmailContainer } from './MarkdownContainer';
 import { Wrapper } from './Shared';
 
-type PlainTemplate = {
+interface PlainTemplate {
   markdown: string;
   preview: string;
   withHtml?: boolean;
-};
+}
 
 const container = {
   width: '100%',

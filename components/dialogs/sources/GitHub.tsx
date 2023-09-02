@@ -64,12 +64,12 @@ const _addSource = async (
   }
 };
 
-type ConnectButtonProps = {
+interface ConnectButtonProps {
   projectId: Project['id'];
   repository: GitHubRepository;
   onComplete?: () => void;
   clearPrevious?: boolean;
-};
+}
 
 const ConnectButton: FC<ConnectButtonProps> = ({
   projectId,
@@ -105,11 +105,11 @@ const ConnectButton: FC<ConnectButtonProps> = ({
   );
 };
 
-type GitHubSourceProps = {
+interface GitHubSourceProps {
   clearPrevious?: boolean;
   openPricingAsDialog?: boolean;
   onDidAddSource: () => void;
-};
+}
 
 const GitHubSource: FC<GitHubSourceProps> = ({
   clearPrevious,

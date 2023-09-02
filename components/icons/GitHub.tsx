@@ -1,8 +1,8 @@
 import { FC } from 'react';
 
-type GitHubIconProps = {
+interface GitHubIconProps {
   className?: string;
-};
+}
 
 export const GitHubIcon: FC<GitHubIconProps> = ({ className }) => {
   return (

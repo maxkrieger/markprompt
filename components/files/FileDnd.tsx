@@ -18,12 +18,12 @@ import { FileData } from '@/types/types';
 import Button from '../ui/Button';
 import { ToggleMessage } from '../ui/ToggleMessage';
 
-type FileDndProps = {
+interface FileDndProps {
   isOnEmptyStateDataPanel?: boolean;
   forceRetrain?: boolean;
   onTrainingComplete: () => void;
   className?: string;
-};
+}
 
 const FileDnd: FC<FileDndProps> = ({
   isOnEmptyStateDataPanel,

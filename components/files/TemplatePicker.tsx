@@ -7,9 +7,9 @@ import { DEFAULT_SYSTEM_PROMPT, predefinedSystemPrompts } from '@/lib/prompt';
 
 import { SelectItem } from '../ui/Select';
 
-type TemplatePickerProps = {
+interface TemplatePickerProps {
   className?: string;
-};
+}
 
 export const TemplatePicker: FC<TemplatePickerProps> = () => {
   const { markpromptOptions, setMarkpromptOptions } = useConfigContext();

@@ -21,7 +21,7 @@ import {
   ThemeColors,
 } from '../themes';
 
-export type State = {
+export interface State {
   markpromptOptions: SerializableMarkpromptOptions;
   theme: Theme;
   colors: ThemeColors;
@@ -34,7 +34,7 @@ export type State = {
     markpromptOptions: SerializableMarkpromptOptions,
   ) => void;
   restoreModelDefaults: () => void;
-};
+}
 
 const removeUnserializableEntries = (
   markpromptOptions: SerializableMarkpromptOptions,

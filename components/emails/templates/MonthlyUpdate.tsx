@@ -14,12 +14,12 @@ import { MarkdownEmailContainer } from './MarkdownContainer';
 import { Wrapper } from './Shared';
 import { SocialSection } from './SocialSection';
 
-type MonthlyUpdateTemplateProps = {
+interface MonthlyUpdateTemplateProps {
   date: Date;
   markdown: string;
   preview: string;
   withHtml?: boolean;
-};
+}
 
 export const MonthlyUpdateTemplate: FC<MonthlyUpdateTemplateProps> = ({
   date,

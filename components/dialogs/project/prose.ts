@@ -11,9 +11,7 @@ const rem = (px: number) => `${round(px / 16)}rem`;
 
 const em = (px: number, base: number) => `${round(px / base)}em`;
 
-interface CSSClasses {
-  [key: string]: Record<string, unknown>;
-}
+type CSSClasses = Record<string, Record<string, unknown>>;
 
 interface CSSDimensionClasses {
   sm: CSSClasses;

@@ -7,9 +7,9 @@ import { defaultThemes, getTheme } from '@/lib/themes';
 
 import { SelectItem } from '../ui/Select';
 
-type ThemePickerProps = {
+interface ThemePickerProps {
   className?: string;
-};
+}
 
 export const ThemePicker: FC<ThemePickerProps> = () => {
   const { theme, setTheme } = useConfigContext();

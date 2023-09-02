@@ -43,20 +43,20 @@ const allowedMethods = ['GET'];
 // Admin access to Supabase, bypassing RLS.
 const supabaseAdmin = createServiceRoleSupabaseClient();
 
-export type UserUsageStats = {
+export interface UserUsageStats {
   teamUsageStats: TeamUsageStats[];
-};
+}
 
-type TeamUsageStats = {
+interface TeamUsageStats {
   name: string;
   slug: string;
   tierName: string;
   numMonthlyAllowedCompletions: number;
   numAllowedEmbeddings: number;
   projectUsageStats: ProjectUsageStats[];
-};
+}
 
-type ProjectUsageStats = {
+interface ProjectUsageStats {
   name: string;
   slug: string;
   numEmbeddingTokens: number;
@@ -69,7 +69,7 @@ type ProjectUsageStats = {
   numQuestionsDownvoted: number;
   numQuestionsUpvoted: number;
   mostCitedSources: string[];
-};
+}
 
 const sanitizeQuestion = (question: string) => {
   // Replace emails and phone numbers with with [REDACTED]

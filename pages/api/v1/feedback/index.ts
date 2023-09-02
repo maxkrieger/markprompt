@@ -5,10 +5,10 @@ import { createServiceRoleSupabaseClient } from '@/lib/supabase';
 // Admin access to Supabase, bypassing RLS.
 const supabaseAdmin = createServiceRoleSupabaseClient();
 
-type Data = {
+interface Data {
   status?: string;
   error?: string;
-};
+}
 
 const allowedMethods = ['POST'];
 

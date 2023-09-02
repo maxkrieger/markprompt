@@ -38,10 +38,10 @@ const SocialCard = ({
   );
 };
 
-type SocialSectionProps = {
+interface SocialSectionProps {
   excludeCTA?: boolean;
   className?: string;
-};
+}
 
 export const SocialSection: FC<SocialSectionProps> = ({
   className,

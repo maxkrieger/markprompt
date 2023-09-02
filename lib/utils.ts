@@ -863,12 +863,12 @@ export const removeFileExtension = (fileName: string) => {
   return fileName.substring(0, lastDotIndex);
 };
 
-type RGBA = {
+interface RGBA {
   r: number;
   g: number;
   b: number;
   a: number;
-};
+}
 export const hexToRgba = (hex: string): RGBA => {
   const hexValue = hex.replace('#', '');
   const r = parseInt(hexValue.substring(0, 2), 16);
@@ -1134,12 +1134,12 @@ export const isMacLike = () => {
   return platform.indexOf('mac') === 0 || platform === 'iPhone';
 };
 
-const toQueryString = (params: { [key: string]: string }) => {
+const toQueryString = (params: Record<string, string>) => {
   return Object.keys(params)
     .map((k) => `${k}=${encodeURIComponent(params[k])}`)
     .join('&');
 };
 
-export const formatUrl = (url: string, params: { [key: string]: string }) => {
+export const formatUrl = (url: string, params: Record<string, string>) => {
   return url + '?' + toQueryString(params);
 };

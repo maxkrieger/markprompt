@@ -13,7 +13,7 @@ import { getPageMetadataStaticProps } from '@/lib/pages';
 const pageIds = JSON.parse(process.env.MOTIF_BLOG_PAGE_IDS!);
 
 export const getStaticProps: GetStaticProps = async () => {
-  return getPageMetadataStaticProps(pageIds as { [key: string]: string });
+  return getPageMetadataStaticProps(pageIds as Record<string, string>);
 };
 
 const BlogIndexPage: FC<InferGetStaticPropsType<typeof getStaticProps>> = ({

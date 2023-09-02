@@ -4,10 +4,10 @@ import { ReactNode, FC } from 'react';
 
 type NoteType = 'info' | 'warning' | 'error';
 
-type IconProps = {
+interface IconProps {
   type?: NoteType;
   className?: string;
-};
+}
 
 const Icon: FC<IconProps> = ({ type, className }) => {
   switch (type) {
@@ -18,12 +18,12 @@ const Icon: FC<IconProps> = ({ type, className }) => {
   }
 };
 
-type NoteProps = {
+interface NoteProps {
   size?: 'sm' | 'base';
   className?: string;
   type?: NoteType;
   children?: ReactNode;
-};
+}
 
 export const Note: FC<NoteProps> = ({ size, className, type, children }) => {
   const noteSize = size || 'base';

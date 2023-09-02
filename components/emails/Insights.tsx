@@ -25,13 +25,13 @@ import { UserUsageStats } from '@/pages/api/cron/weekly-update-email';
 import { Wrapper } from './templates/Shared';
 import { SocialSection } from './templates/SocialSection';
 
-type InsightsEmailProps = {
+interface InsightsEmailProps {
   preview: string;
   withHtml: boolean;
   stats: UserUsageStats;
   from: Date;
   to: Date;
-};
+}
 
 const getWarningMessage = (
   completionsUsagePercent: number,

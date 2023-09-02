@@ -4,10 +4,10 @@ import { FC, ReactNode } from 'react';
 
 import { MarkpromptIcon } from '../icons/Markprompt';
 
-type MDXComponentProps = {
+interface MDXComponentProps {
   children: ReactNode;
   meta: any;
-};
+}
 
 export const MDXComponent: FC<MDXComponentProps> = ({ children, meta }) => {
   return (

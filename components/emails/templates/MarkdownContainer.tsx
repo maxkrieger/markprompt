@@ -6,10 +6,10 @@ import remarkGfm from 'remark-gfm';
 
 import { Code } from '@/components/ui/Code';
 
-type MarkdownContainerProps = {
+interface MarkdownContainerProps {
   markdown: string;
   components?: any;
-};
+}
 
 export const MarkdownEmailContainer: FC<MarkdownContainerProps> = ({
   markdown,

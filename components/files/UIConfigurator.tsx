@@ -21,10 +21,10 @@ import ColorPickerInput from '../ui/ColorPickerInput';
 import Input from '../ui/Input';
 import { Tag } from '../ui/Tag';
 
-type ThemeColorPickerProps = {
+interface ThemeColorPickerProps {
   colors: ThemeColors;
   colorKey: ThemeColorKeys;
-};
+}
 
 const ThemeColorPicker: FC<ThemeColorPickerProps> = ({ colors, colorKey }) => {
   const { setColor } = useConfigContext();
@@ -37,9 +37,9 @@ const ThemeColorPicker: FC<ThemeColorPickerProps> = ({ colors, colorKey }) => {
   );
 };
 
-type UIConfiguratorProps = {
+interface UIConfiguratorProps {
   className?: string;
-};
+}
 
 const UIConfigurator: FC<UIConfiguratorProps> = () => {
   const { team } = useTeam();

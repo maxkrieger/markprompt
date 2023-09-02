@@ -1,8 +1,8 @@
 import { FC } from 'react';
 
-type MarkpromptIconProps = {
+interface MarkpromptIconProps {
   className?: string;
-};
+}
 
 export const MarkpromptIcon: FC<MarkpromptIconProps> = ({ className }) => {
   return (

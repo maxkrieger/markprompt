@@ -1,8 +1,8 @@
 import { FC } from 'react';
 
-type SpinnerIconProps = {
+interface SpinnerIconProps {
   className?: string;
-};
+}
 
 export const SpinnerIcon: FC<SpinnerIconProps> = ({ className }) => {
   return (

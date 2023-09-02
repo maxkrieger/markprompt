@@ -5,12 +5,12 @@ import { toast } from 'react-hot-toast';
 
 import { copyToClipboard } from '@/lib/utils';
 
-type CodeProps = {
+interface CodeProps {
   code: string;
   language: Language;
   className?: string;
   noPreWrap?: boolean;
-};
+}
 
 export const Code: FC<CodeProps> = ({
   code,

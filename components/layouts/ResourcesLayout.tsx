@@ -27,12 +27,12 @@ import { Note } from '../ui/Note';
 import { Pattern } from '../ui/Pattern';
 import { Video } from '../ui/Video';
 
-type ResourcesLayoutProps = {
+interface ResourcesLayoutProps {
   content: RenderableTreeNode;
   toc: TOC;
   frontmatter: any;
   format?: string;
-};
+}
 
 const ResourcesProseContainer = ({
   frontmatter,

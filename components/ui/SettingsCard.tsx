@@ -12,11 +12,11 @@ export const DescriptionLabel: FC<PropsWithChildren> = ({ children }) => {
   return <div className="p-4 text-sm text-neutral-500">{children}</div>;
 };
 
-type SettingsCardProps = {
+interface SettingsCardProps {
   title: string | ReactNode;
   description?: string | ReactNode;
   children?: ReactNode;
-};
+}
 
 export const SettingsCard: FC<SettingsCardProps> = ({
   title,

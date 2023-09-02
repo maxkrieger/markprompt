@@ -8,10 +8,10 @@ import {
   useState,
 } from 'react';
 
-type FlashingProps = {
+interface FlashingProps {
   active: number;
   children: ReactNode;
-};
+}
 
 export const Flashing: FC<FlashingProps> = ({ active, children }) => {
   return (

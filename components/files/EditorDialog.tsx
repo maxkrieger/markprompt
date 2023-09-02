@@ -6,12 +6,12 @@ import { DbFile } from '@/types/types';
 
 import { Editor } from './Editor';
 
-type EditorDialogProps = {
+interface EditorDialogProps {
   filePath?: string;
   highlightSectionSlug?: string;
   open: boolean;
   setOpen: (open: boolean) => void;
-};
+}
 
 const EditorDialog: FC<EditorDialogProps> = ({
   filePath,

@@ -1,8 +1,8 @@
 import { FC } from 'react';
 
-type SyncIconProps = {
+interface SyncIconProps {
   className?: string;
-};
+}
 
 export const SyncIcon: FC<SyncIconProps> = ({ className }) => {
   return (

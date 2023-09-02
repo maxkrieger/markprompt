@@ -11,30 +11,37 @@ type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 export type TimeInterval = '1h' | '24h' | '7d' | '30d' | '3m' | '1y';
 export type DateGranularity = 'hour' | 'day' | 'week' | 'month' | 'year';
-export type HistogramStat = { start: number; end: number; value: number };
-export type DateCountHistogramEntry = { date: Date; count: number };
-export type ProjectUsageHistogram = {
+export interface HistogramStat {
+  start: number;
+  end: number;
+  value: number;
+}
+export interface DateCountHistogramEntry {
+  date: Date;
+  count: number;
+}
+export interface ProjectUsageHistogram {
   projectId: Project['id'];
   histogram: DateCountHistogramEntry[];
-};
-export type FileStats = {
+}
+export interface FileStats {
   tokenCount: number;
-};
+}
 
 export type OAuthProvider = 'github';
 
-export type GitHubRepository = {
+export interface GitHubRepository {
   name: string;
   owner: string;
   url: string;
-};
+}
 
 export type LLMVendors = 'openai';
 
-export type LLMInfo = {
+export interface LLMInfo {
   vendor: LLMVendors;
   model: OpenAIModelIdWithType;
-};
+}
 
 export type OpenAIModelIdWithType =
   | { type: 'chat_completions'; value: OpenAIChatCompletionsModelId }
@@ -90,7 +97,11 @@ export type PromptConfig =
 export type DbQueryStat = Database['public']['Tables']['query_stats']['Row'];
 
 export type Source = PartialBy<Pick<DbSource, 'type' | 'data'>, 'data'>;
-export type FileData = { path: string; name: string; content: string };
+export interface FileData {
+  path: string;
+  name: string;
+  content: string;
+}
 export type PathContentData = Pick<FileData, 'path' | 'content'>;
 export type Checksum = Pick<DbFile, 'path' | 'checksum'>;
 export type DbFileWithoutContent = Omit<DbFile, 'raw_content'>;
@@ -109,26 +120,26 @@ export type PromptQueryStatFull = Pick<
   | 'feedback'
   | 'meta'
 >;
-export type ReferenceWithOccurrenceCount = {
+export interface ReferenceWithOccurrenceCount {
   path: string;
   occurrences: number;
   source_type: SourceType;
   source_data: SourceDataType | null;
-};
+}
 
-export type PromptQueryHistogram = {
+export interface PromptQueryHistogram {
   date: string | null;
   occurrences: number | null;
-};
+}
 
 export type TeamStats =
   Database['public']['Functions']['get_team_stats']['Returns'][number];
 
-export type QueryStatsProcessingResponseData = {
+export interface QueryStatsProcessingResponseData {
   processed?: number;
   errored?: number;
   allProcessed?: boolean;
-};
+}
 
 export type FileType = 'mdx' | 'mdoc' | 'md' | 'rst' | 'html' | 'txt';
 
@@ -139,13 +150,26 @@ export type SourceDataType =
   | GitHubSourceDataType
   | MotifSourceDataType
   | WebsiteSourceDataType;
-export type GitHubSourceDataType = { url: string; branch?: string };
-export type MotifSourceDataType = { projectDomain: string };
-export type WebsiteSourceDataType = { url: string };
+export interface GitHubSourceDataType {
+  url: string;
+  branch?: string;
+}
+export interface MotifSourceDataType {
+  projectDomain: string;
+}
+export interface WebsiteSourceDataType {
+  url: string;
+}
 
-export type RobotsTxtInfo = { sitemap?: string; disallowedPaths: string[] };
+export interface RobotsTxtInfo {
+  sitemap?: string;
+  disallowedPaths: string[];
+}
 
-export type ReferenceInfo = { name: string; href?: string };
+export interface ReferenceInfo {
+  name: string;
+  href?: string;
+}
 
 export const API_ERROR_CODE_CONTENT_TOKEN_QUOTA_EXCEEDED = 1000;
 export const API_ERROR_ID_CONTENT_TOKEN_QUOTA_EXCEEDED =
@@ -168,26 +192,31 @@ export type TagColor =
   | 'neutral'
   | 'red';
 
-export type SerializedDateRange = {
+export interface SerializedDateRange {
   from: number | undefined;
   to: number | undefined;
-};
+}
 
 export type SystemStatus = 'operational' | 'downtime' | 'degraded';
 
-export type FileSectionHeading = { value: string | undefined; depth: number };
+export interface FileSectionHeading {
+  value: string | undefined;
+  depth: number;
+}
 
-export type FileSectionMeta = { leadHeading?: FileSectionHeading };
+export interface FileSectionMeta {
+  leadHeading?: FileSectionHeading;
+}
 
 export type FileSectionData = {
   content: string;
 } & FileSectionMeta;
 
-export type FileSectionsData = {
+export interface FileSectionsData {
   sections: FileSectionData[];
   meta: { title: string } & any;
   leadFileHeading: string | undefined;
-};
+}
 
 // This is the same as MarkpromptOptions, except that functions are replaced
 // by strings. This is mainly a helper for the UI configuration, so that we

@@ -15,11 +15,11 @@ import useTeams from '../hooks/use-teams';
 import useUser from '../hooks/use-user';
 import { useLocalStorage } from '../hooks/utils/use-localstorage';
 
-export type State = {
+export interface State {
   isOnboarding: boolean;
   didCompleteFirstQuery: boolean;
   setDidCompleteFirstQuery: (value: boolean) => void;
-};
+}
 
 const initialContextState: State = {
   isOnboarding: false,

@@ -2,12 +2,12 @@ import cn from 'classnames';
 import Image from 'next/image';
 import { FC } from 'react';
 
-type ContentImageProps = {
+interface ContentImageProps {
   src: string;
   alt: string;
   title: string;
   className: string;
-};
+}
 
 export const ContentImage: FC<ContentImageProps> = ({
   src,

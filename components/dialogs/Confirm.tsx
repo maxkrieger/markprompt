@@ -4,14 +4,14 @@ import { FC, ReactNode } from 'react';
 import Button, { ButtonVariant } from '../ui/Button';
 import { CTABar } from '../ui/SettingsCard';
 
-type ConfirmDialogProps = {
+interface ConfirmDialogProps {
   cta: string;
   title: string;
   description?: string | ReactNode;
   variant?: ButtonVariant;
   loading?: boolean;
   onCTAClick: () => Promise<void>;
-};
+}
 
 const ConfirmDialog: FC<ConfirmDialogProps> = ({
   cta,

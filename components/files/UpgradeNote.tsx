@@ -5,11 +5,11 @@ import emitter, { EVENT_OPEN_PLAN_PICKER_DIALOG } from '@/lib/events';
 
 import Button from '../ui/Button';
 
-type UpgradeNoteProps = {
+interface UpgradeNoteProps {
   showDialog?: boolean;
   className?: string;
   children?: ReactNode;
-};
+}
 
 export const UpgradeNote: FC<UpgradeNoteProps> = ({ className, children }) => {
   return (

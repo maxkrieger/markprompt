@@ -113,10 +113,10 @@ const getBasePath = (pathWithFile: string) => {
   }
 };
 
-type SourceItemProps = {
+interface SourceItemProps {
   source: DbSource;
   onRemoveSelected: () => void;
-};
+}
 
 const SourceItem: FC<SourceItemProps> = ({ source, onRemoveSelected }) => {
   const Icon = getIconForSource(source.type);

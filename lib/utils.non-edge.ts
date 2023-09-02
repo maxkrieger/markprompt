@@ -8,15 +8,13 @@ import { DbFileWithoutContent, DbSource } from '@/types/types';
 
 import { getNameForPath } from './utils.nodeps';
 
-export const extractFrontmatter = (
-  source: string,
-): { [key: string]: string } => {
+export const extractFrontmatter = (source: string): Record<string, string> => {
   try {
     const matter = grayMatter(source, {})?.matter;
     if (matter) {
       return yaml.load(matter, {
         schema: yaml.JSON_SCHEMA,
-      }) as { [key: string]: string };
+      }) as Record<string, string>;
     }
   } catch {
     // Do nothing

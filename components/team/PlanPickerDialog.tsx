@@ -5,9 +5,9 @@ import emitter, { EVENT_OPEN_PLAN_PICKER_DIALOG } from '@/lib/events';
 
 import PlanPicker from './PlanPicker';
 
-type PlanPickerDialogProps = {
+interface PlanPickerDialogProps {
   children?: ReactNode;
-};
+}
 
 const PlanPickerDialog: FC<PlanPickerDialogProps> = ({ children }) => {
   const [isDialogOpen, setDialogOpen] = useState(false);

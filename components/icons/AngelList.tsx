@@ -1,8 +1,8 @@
 import { FC } from 'react';
 
-type AngeListIconProps = {
+interface AngeListIconProps {
   className?: string;
-};
+}
 
 export const AngeListIcon: FC<AngeListIconProps> = ({ className }) => {
   return (

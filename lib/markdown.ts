@@ -69,9 +69,7 @@ const getProcessor = (withMdx: boolean, markpromptConfig: MarkpromptConfig) => {
 };
 
 export const augmentMetaWithTitle = (
-  meta: {
-    [key: string]: string;
-  },
+  meta: Record<string, string>,
   leadFileHeading: string | undefined,
   filePath: string,
 ) => {

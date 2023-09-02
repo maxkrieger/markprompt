@@ -167,13 +167,13 @@ export const Row = ({
   );
 };
 
-type ConnectButtonProps = {
+interface ConnectButtonProps {
   label: string;
   disabled?: boolean;
   Icon: JSXElementConstructor<any>;
   sample?: boolean;
   onClick?: () => void;
-};
+}
 
 const ConnectButton = forwardRef<HTMLButtonElement, ConnectButtonProps>(
   ({ label, Icon, onClick, disabled, ...props }, ref) => {
@@ -333,9 +333,9 @@ export const Lines = ({
 
 ConnectButton.displayName = 'ConnectButton';
 
-type PlaygroundDashboardProps = {
+interface PlaygroundDashboardProps {
   isOnboarding?: boolean;
-};
+}
 
 const PlaygroundDashboard: FC<PlaygroundDashboardProps> = ({
   isOnboarding,

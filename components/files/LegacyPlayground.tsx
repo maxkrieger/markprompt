@@ -22,10 +22,10 @@ import { timeout } from '@/lib/utils';
 import { getApiUrl } from '@/lib/utils.edge';
 import { ReferenceInfo } from '@/types/types';
 
-type CaretProps = {
+interface CaretProps {
   color?: string;
   className?: string;
-};
+}
 
 const Caret: FC<CaretProps> = ({ color, className }) => {
   return (
@@ -79,7 +79,7 @@ const WithCaret: FC<WithCaretProps> = ({
   );
 };
 
-type PlaygroundProps = {
+interface PlaygroundProps {
   projectKey?: string;
   forceUseProdAPI?: boolean;
   onStateChanged?: (loading: boolean) => void;
@@ -104,7 +104,7 @@ type PlaygroundProps = {
   includeBranding?: boolean;
   hideCloseButton?: boolean;
   getReferenceInfo?: (refId: string) => ReferenceInfo | undefined;
-};
+}
 
 // The playground is used in three scenarios:
 // - In demo mode for the landing page - it's not referring to any project

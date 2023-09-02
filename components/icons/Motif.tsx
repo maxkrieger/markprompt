@@ -1,8 +1,8 @@
 import { FC } from 'react';
 
-type MotifIconProps = {
+interface MotifIconProps {
   className?: string;
-};
+}
 
 export const MotifIcon: FC<MotifIconProps> = ({ className }) => {
   return (

@@ -4,12 +4,12 @@ export const DescriptionLabel: FC<PropsWithChildren> = ({ children }) => {
   return <div className="p-4 text-sm text-neutral-500">{children}</div>;
 };
 
-type CardProps = {
+interface CardProps {
   title: string | ReactNode;
   description?: string | ReactNode;
   accessory?: ReactNode;
   children?: ReactNode;
-};
+}
 
 export const Card: FC<CardProps> = ({
   title,

@@ -20,11 +20,11 @@ const EditorDialog = dynamic(() => import('@/components/files/EditorDialog'), {
   loading: () => Loading,
 });
 
-type QueryStatDialogProps = {
+interface QueryStatDialogProps {
   queryStatId?: DbQueryStat['id'];
   open: boolean;
   setOpen: (open: boolean) => void;
-};
+}
 
 const QueryStatDialog: FC<QueryStatDialogProps> = ({
   queryStatId,

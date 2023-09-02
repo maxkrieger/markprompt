@@ -1,8 +1,8 @@
 import type { FC } from 'react';
 
-type LoadingDotsProps = {
+interface LoadingDotsProps {
   className?: string;
-};
+}
 
 const LoadingDots: FC<LoadingDotsProps> = ({ className }) => {
   return (

@@ -1,11 +1,11 @@
 import cn from 'classnames';
 import { FC, ReactNode } from 'react';
 
-type ToggleMessageProps = {
+interface ToggleMessageProps {
   message1: ReactNode;
   message2: ReactNode;
   showMessage1: boolean;
-};
+}
 
 export const ToggleMessage: FC<ToggleMessageProps> = ({
   message1,

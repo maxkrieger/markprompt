@@ -23,18 +23,18 @@ import {
 // Admin access to Supabase, bypassing RLS.
 const supabaseAdmin = createServiceRoleSupabaseClient();
 
-type LegacySectionData = {
+interface LegacySectionData {
   path: string;
   content: string;
   similarity: number;
   source_type: Source['type'];
   source_data: Source['data'] | undefined;
-};
+}
 
-type FileSectionContentInfo = {
+interface FileSectionContentInfo {
   content: string;
   similarity: number;
-};
+}
 
 type Data =
   | {

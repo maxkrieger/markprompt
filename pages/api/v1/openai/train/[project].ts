@@ -33,12 +33,12 @@ import {
   Project,
 } from '@/types/types';
 
-type Data = {
+interface Data {
   status?: string;
   message?: string;
   error?: string;
   name?: string;
-};
+}
 
 export const config = {
   api: {

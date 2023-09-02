@@ -5,7 +5,7 @@ import { ChangeEvent, FC } from 'react';
 import Input from './Input';
 import { Row } from '../files/PlaygroundDashboard';
 
-type SliderInputProps = {
+interface SliderInputProps {
   label: string;
   tip?: string;
   min: number;
@@ -14,7 +14,7 @@ type SliderInputProps = {
   value: number;
   setValue: (value: number) => void;
   className?: string;
-};
+}
 
 export const SliderInput: FC<SliderInputProps> = ({
   label,

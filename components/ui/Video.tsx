@@ -1,13 +1,13 @@
 import cn from 'classnames';
 import { FC } from 'react';
 
-type VideoProps = {
+interface VideoProps {
   src?: string;
   className?: string;
   autoPlay?: boolean;
   loop?: boolean;
   controls?: boolean;
-};
+}
 
 export const Video: FC<VideoProps> = ({
   src,

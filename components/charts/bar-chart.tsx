@@ -16,13 +16,13 @@ import type { TimeInterval } from '@/types/types';
 const LEFT_AXIS_WIDTH = 30;
 const BOTTOM_AXIS_HEIGHT = 30;
 
-export type BarChartData = {
+export interface BarChartData {
   start: number;
   end: number;
   value: number;
-};
+}
 
-type FixedBarChartProps = {
+interface FixedBarChartProps {
   data: BarChartData[];
   isLoading?: boolean;
   interval: TimeInterval;
@@ -32,17 +32,17 @@ type FixedBarChartProps = {
   noDecorations?: boolean;
   showZero?: boolean;
   countLabel?: string;
-};
+}
 
-type ResponsiveBarChartProps = {
+interface ResponsiveBarChartProps {
   parentWidth: number;
-};
+}
 
-type TooltipData = {
+interface TooltipData {
   start: number;
   end: number;
   value: number;
-};
+}
 
 const FixedBarChart: FC<FixedBarChartProps & ResponsiveBarChartProps> = ({
   data: _data,

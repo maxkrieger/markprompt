@@ -19,10 +19,10 @@ import { timeFormat } from 'd3-time-format';
 import { FC, MouseEvent, TouchEvent, useCallback, useMemo } from 'react';
 import colors from 'tailwindcss/colors';
 
-type AreaChartData = {
+interface AreaChartData {
   date: number;
   value: number;
-};
+}
 
 type TooltipData = AreaChartData;
 
@@ -39,12 +39,12 @@ const getDate = (d: AreaChartData) => new Date(d.date);
 const getValue = (d: AreaChartData) => d.value;
 const bisectDate = bisector<AreaChartData, Date>((d) => new Date(d.date)).left;
 
-export type FixedAreaChartProps = {
+export interface FixedAreaChartProps {
   data: AreaChartData[];
   width: number;
   height: number;
   margin?: { top: number; right: number; bottom: number; left: number };
-};
+}
 
 const tooltipStyles = {
   ...defaultStyles,

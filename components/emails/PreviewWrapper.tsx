@@ -4,7 +4,7 @@ import { FC, ReactNode } from 'react';
 import { SharedHead } from '../pages/SharedHead';
 import Button from '../ui/Button';
 
-type PreviewWrapperProps = {
+interface PreviewWrapperProps {
   title: string;
   width?: 'xs' | 'sm';
   sending: boolean;
@@ -12,7 +12,7 @@ type PreviewWrapperProps = {
   onSendClick: () => void;
   InfoPanel?: ReactNode;
   children: ReactNode;
-};
+}
 
 // We create the email component as a standalone component, instead of
 // creating it in the page itself, to avoid hydration errors (we

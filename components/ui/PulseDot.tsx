@@ -1,9 +1,9 @@
 import cn from 'classnames';
 import { FC } from 'react';
 
-type PulseDotProps = {
+interface PulseDotProps {
   className?: string;
-};
+}
 
 export const PulseDot: FC<PulseDotProps> = ({ className }) => {
   return (

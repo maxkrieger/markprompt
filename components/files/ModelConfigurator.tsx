@@ -22,9 +22,9 @@ import { SliderInput } from '../ui/SliderInput';
 import { Tag } from '../ui/Tag';
 import { NoAutoTextArea } from '../ui/TextArea';
 
-type ModelConfiguratorProps = {
+interface ModelConfiguratorProps {
   className?: string;
-};
+}
 
 const ModelConfigurator: FC<ModelConfiguratorProps> = () => {
   const { team } = useTeam();

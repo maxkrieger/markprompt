@@ -14,9 +14,9 @@ import { getAppOrigin } from '@/lib/utils.edge';
 
 import { ContactWindow } from './ChatWindow';
 
-type AuthPageProps = {
+interface AuthPageProps {
   type: 'signin' | 'signup';
-};
+}
 
 const supabase = getPublicAnonSupabase();
 

@@ -14,10 +14,10 @@ import tailwindConfig from '../../tailwind.config';
 import '@markprompt/css';
 import { MarkpromptFilledIcon } from '../icons/MarkpromptFilled';
 
-type DocsPromptProps = {
+interface DocsPromptProps {
   children: ReactNode;
   onOpenChange?: (open: boolean) => void;
-};
+}
 
 const getHref = (
   reference: FileSectionReference | SearchResult | AlgoliaDocSearchHit,

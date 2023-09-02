@@ -57,17 +57,26 @@ import {
 } from '../utils';
 import { getNameFromUrlOrPath } from '../utils.nodeps';
 
-type IdleState = { state: 'idle' };
-type FetchingDataState = { state: 'fetching_data' };
-type LoadingState = {
+interface IdleState {
+  state: 'idle';
+}
+interface FetchingDataState {
+  state: 'fetching_data';
+}
+interface LoadingState {
   state: 'loading';
   progress?: number;
   total?: number;
   filename?: string;
   message?: string;
-};
-type CancelRequestsState = { state: 'cancel_requested' };
-type CompleteState = { state: 'complete'; errors: string[] };
+}
+interface CancelRequestsState {
+  state: 'cancel_requested';
+}
+interface CompleteState {
+  state: 'complete';
+  errors: string[];
+}
 
 export type TrainingState =
   | IdleState
@@ -76,7 +85,7 @@ export type TrainingState =
   | CancelRequestsState
   | CompleteState;
 
-export type State = {
+export interface State {
   state: TrainingState;
   errors: string[];
   generateEmbeddings: (
@@ -96,7 +105,7 @@ export type State = {
     onFileProcessed: () => void,
     onError: (message: string) => void,
   ) => void;
-};
+}
 
 const initialState: State = {
   state: { state: 'idle' },

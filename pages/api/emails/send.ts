@@ -15,12 +15,12 @@ import { DbUser } from '@/types/types';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-type Data = {
+interface Data {
   sent?: string[];
   errored?: string[];
   error?: string;
   done?: boolean;
-};
+}
 
 const allowedMethods = ['POST'];
 

@@ -5,11 +5,26 @@ import { Project } from '@/types/types';
 import { getRedisClient } from './redis';
 import { pluralize } from './utils';
 
-type RateLimitIdProjectIdType = { value: Project['id']; type: 'projectId' };
-type RateLimitIdProjectKeyType = { value: string; type: 'projectKey' };
-type RateLimitIdTokenType = { value: string; type: 'token' };
-type RateLimitIdHostnameType = { value: string; type: 'hostname' };
-type RateLimitIdIPType = { value: string; type: 'ip' };
+interface RateLimitIdProjectIdType {
+  value: Project['id'];
+  type: 'projectId';
+}
+interface RateLimitIdProjectKeyType {
+  value: string;
+  type: 'projectKey';
+}
+interface RateLimitIdTokenType {
+  value: string;
+  type: 'token';
+}
+interface RateLimitIdHostnameType {
+  value: string;
+  type: 'hostname';
+}
+interface RateLimitIdIPType {
+  value: string;
+  type: 'ip';
+}
 
 type RateLimitIdType =
   | RateLimitIdProjectIdType

@@ -1,8 +1,8 @@
 import { FC } from 'react';
 
-type CalIconProps = {
+interface CalIconProps {
   className?: string;
-};
+}
 
 export const CalIcon: FC<CalIconProps> = ({ className }) => {
   return (

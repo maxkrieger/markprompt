@@ -31,11 +31,11 @@ const allowedMethods = ['GET'];
 // Admin access to Supabase, bypassing RLS.
 const supabaseAdmin = createServiceRoleSupabaseClient();
 
-type QueryStatData = {
+interface QueryStatData {
   id: string | null;
   decrypted_prompt: string | null;
   decrypted_response: string | null;
-};
+}
 
 // Ensure that no queries alone are too large for the prompt. If one
 // such query exists.

@@ -168,12 +168,10 @@ export const checkWhitelistedDomainIfProjectKey = async (
   }
 };
 
-interface NextApiHandler<T> {
-  (
-    req: NextApiRequest,
-    res: NextApiResponse<T>,
-  ): Promise<NextApiResponse<T> | void>;
-}
+type NextApiHandler<T> = (
+  req: NextApiRequest,
+  res: NextApiResponse<T>,
+) => Promise<NextApiResponse<T> | void>;
 
 type RequestAccessCondition = (
   req: NextApiRequest,

@@ -27,10 +27,10 @@ import { SkeletonTable } from '../ui/Skeletons';
 
 dayjs.extend(localizedFormat);
 
-type EditorProps = {
+interface EditorProps {
   filePath?: string;
   highlightSectionSlug?: string;
-};
+}
 
 export const Editor: FC<EditorProps> = ({ filePath }) => {
   const { project } = useProject();

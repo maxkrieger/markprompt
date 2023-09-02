@@ -18,12 +18,12 @@ import {
   DbSource,
 } from '@/types/types';
 
-type Data = {
+interface Data {
   status?: string;
   name?: string;
   error?: string;
   errors?: { path: string; message: string }[];
-};
+}
 
 // Admin access to Supabase, bypassing RLS.
 const supabaseAdmin = createServiceRoleSupabaseClient();

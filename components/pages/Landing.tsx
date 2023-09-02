@@ -139,10 +139,10 @@ const PricingCard = ({
   );
 };
 
-type LandingPageProps = {
+interface LandingPageProps {
   stars: number;
   status: SystemStatus;
-};
+}
 
 const formatNumStars = (stars: number) => {
   if (stars > 1000) {

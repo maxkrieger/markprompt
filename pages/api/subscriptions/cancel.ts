@@ -4,10 +4,10 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { stripe } from '@/lib/stripe/server';
 import { Database } from '@/types/supabase';
 
-type Data = {
+interface Data {
   status?: string;
   error?: string;
-};
+}
 
 const allowedMethods = ['POST'];
 

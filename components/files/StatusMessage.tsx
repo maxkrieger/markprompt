@@ -26,13 +26,13 @@ const getStatusMessage = (
   }
 };
 
-type StatusMessageProps = {
+interface StatusMessageProps {
   trainingState: TrainingState;
   numFiles: number;
   numSelected: number;
   isDeleting?: boolean;
   playgroundPath?: string;
-};
+}
 
 const StatusMessage: FC<StatusMessageProps> = ({
   trainingState,

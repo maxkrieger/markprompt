@@ -203,11 +203,11 @@ const revertFileProcessing = async (
   return supabaseAdmin.from('files').delete().eq('id', fileId);
 };
 
-export type EmbeddingsError = {
+export interface EmbeddingsError {
   id?: string;
   path: string;
   message: string;
-};
+}
 
 export const generateFileEmbeddingsAndSaveFile = async (
   supabaseAdmin: SupabaseClient,

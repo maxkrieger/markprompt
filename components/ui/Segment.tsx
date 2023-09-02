@@ -1,14 +1,14 @@
 import cn from 'classnames';
 import { FC, ReactNode, useEffect, useRef, useState } from 'react';
 
-type SegmentProps = {
+interface SegmentProps {
   id: string;
   selected: number;
   items: (string | ReactNode)[];
   variant?: 'text' | 'toggle';
   size?: 'xs' | 'sm' | 'base';
   onChange: (selected: number) => void;
-};
+}
 
 export const Segment: FC<SegmentProps> = ({
   id,

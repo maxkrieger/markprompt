@@ -44,9 +44,9 @@ const generateTeamName = (session: Session | null) => {
   }
 };
 
-type TeamProjectPickerProps = {
+interface TeamProjectPickerProps {
   onNewTeamClick: () => void;
-};
+}
 
 const getColorForTier = (tier: Tier): TagColor => {
   switch (tier.id) {

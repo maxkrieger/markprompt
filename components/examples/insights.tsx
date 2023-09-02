@@ -31,12 +31,12 @@ const sampleTopReferences: ReferenceWithOccurrenceCount[] = [
   { path: '/docs/faq', occurrences: 83 },
 ].map((s) => ({ ...s, source_type: 'github', source_data: null }));
 
-type Question = {
+interface Question {
   question: string;
   unanswered?: boolean;
   feedback?: '1' | '-1';
   date: Date;
-};
+}
 
 const sampleQuestions: Question[] = [
   {

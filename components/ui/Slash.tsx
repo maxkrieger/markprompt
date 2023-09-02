@@ -1,10 +1,10 @@
 import cn from 'classnames';
 import { FC } from 'react';
 
-type SlashProps = {
+interface SlashProps {
   size?: 'sm' | 'md' | 'lg';
   className?: string;
-};
+}
 
 export const Slash: FC<SlashProps> = ({ size, className }) => {
   return (

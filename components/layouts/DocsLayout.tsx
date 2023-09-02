@@ -22,10 +22,10 @@ import { Video } from '../ui/Video';
 
 export const MarkdocContext = createContext<any>(undefined);
 
-type DocsLayoutProps = {
+interface DocsLayoutProps {
   content: RenderableTreeNode;
   toc: TOC;
-};
+}
 
 export const DocsLayout: FC<DocsLayoutProps> = ({ content, toc }: any) => {
   const { currentSection, registerHeading, unregisterHeading } =

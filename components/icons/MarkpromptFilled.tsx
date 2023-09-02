@@ -1,8 +1,8 @@
 import { FC } from 'react';
 
-type MarkpromptFilledIconProps = {
+interface MarkpromptFilledIconProps {
   className?: string;
-};
+}
 
 export const MarkpromptFilledIcon: FC<MarkpromptFilledIconProps> = ({
   className,

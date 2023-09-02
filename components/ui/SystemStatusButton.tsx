@@ -3,9 +3,9 @@ import { FC } from 'react';
 
 import { SystemStatus } from '@/types/types';
 
-type SystemStatusButtonProps = {
+interface SystemStatusButtonProps {
   status: SystemStatus;
-};
+}
 
 export const SystemStatusButton: FC<SystemStatusButtonProps> = ({ status }) => {
   return (

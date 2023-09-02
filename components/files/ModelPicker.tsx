@@ -8,9 +8,9 @@ import { SUPPORTED_MODELS } from '@/types/types';
 
 import { SelectItem } from '../ui/Select';
 
-type ModelPickerProps = {
+interface ModelPickerProps {
   className?: string;
-};
+}
 
 export const ModelPicker: FC<ModelPickerProps> = () => {
   const { markpromptOptions, setMarkpromptOptions } = useConfigContext();

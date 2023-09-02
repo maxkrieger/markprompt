@@ -1,11 +1,11 @@
 import Head from 'next/head';
 import { FC } from 'react';
 
-type SharedHeadProps = {
+interface SharedHeadProps {
   title: string;
   description?: string;
   ogImage?: string;
-};
+}
 
 export const SharedHead: FC<SharedHeadProps> = ({
   title,

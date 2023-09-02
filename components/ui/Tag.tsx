@@ -3,13 +3,13 @@ import { FC, ReactNode } from 'react';
 
 import { TagColor } from '@/types/types';
 
-type TagProps = {
+interface TagProps {
   className?: string;
   color?: TagColor;
   size?: 'xs' | 'sm' | 'base';
   rounded?: boolean;
   children: ReactNode;
-};
+}
 
 export const Tag: FC<TagProps> = ({
   className,

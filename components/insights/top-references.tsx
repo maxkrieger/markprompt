@@ -6,11 +6,11 @@ import { ReferenceWithOccurrenceCount } from '@/types/types';
 
 import { SkeletonTable } from '../ui/Skeletons';
 
-type TopReferencesProps = {
+interface TopReferencesProps {
   topReferences: ReferenceWithOccurrenceCount[] | null;
   loading?: boolean;
   showUpgradeMessage?: boolean;
-};
+}
 
 export const TopReferences: FC<TopReferencesProps> = ({
   topReferences,

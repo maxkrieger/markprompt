@@ -1,10 +1,10 @@
 import cn from 'classnames';
 import { FC } from 'react';
 
-type SkeletonProps = {
+interface SkeletonProps {
   loading?: boolean;
   onDark?: boolean;
-};
+}
 
 export const SkeletonTable: FC<SkeletonProps> = ({ loading, onDark }) => {
   return (

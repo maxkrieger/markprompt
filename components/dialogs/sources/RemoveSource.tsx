@@ -9,11 +9,11 @@ import useUsage from '@/lib/hooks/use-usage';
 import { getLabelForSource } from '@/lib/utils';
 import { Project, DbSource } from '@/types/types';
 
-type RemoveSourceDialogProps = {
+interface RemoveSourceDialogProps {
   projectId: Project['id'];
   source: DbSource;
   onComplete: () => void;
-};
+}
 
 const RemoveSourceDialog: FC<RemoveSourceDialogProps> = ({
   projectId,

@@ -11,7 +11,7 @@ import { createServiceRoleSupabaseClient } from '@/lib/supabase';
 import { Theme } from '@/lib/themes';
 import { getNameFromPath, removeFileExtension } from '@/lib/utils';
 
-type PromptConfig = {
+interface PromptConfig {
   theme: Theme;
   placeholder: string;
   modelConfig: SubmitPromptOptions;
@@ -19,7 +19,7 @@ type PromptConfig = {
   referencesHeading: string;
   loadingHeading: string;
   includeBranding: boolean;
-};
+}
 
 export const getStaticPaths = async () => {
   return {

@@ -2,11 +2,11 @@ import { FC, ReactNode, useEffect, useState } from 'react';
 
 import { isMacLike } from '@/lib/utils';
 
-type KeyProps = {
+interface KeyProps {
   cmdCtrl?: boolean;
   className?: string;
   children?: ReactNode;
-};
+}
 
 export const Key: FC<KeyProps> = ({ cmdCtrl, className, children }) => {
   const [mounted, setMounted] = useState(false);

@@ -6,11 +6,15 @@ import { FC } from 'react';
 
 import { Tag } from '../ui/Tag';
 
-export type SubTabItem = { label: string; href: string; tag?: string };
+export interface SubTabItem {
+  label: string;
+  href: string;
+  tag?: string;
+}
 
-type SubTabsProps = {
+interface SubTabsProps {
   items: SubTabItem[];
-};
+}
 
 const SubTabs: FC<SubTabsProps> = ({ items }) => {
   const { asPath } = useRouter();

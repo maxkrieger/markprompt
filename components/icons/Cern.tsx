@@ -1,8 +1,8 @@
 import { FC } from 'react';
 
-type CernIconProps = {
+interface CernIconProps {
   className?: string;
-};
+}
 
 export const CernIcon: FC<CernIconProps> = ({ className }) => {
   return (

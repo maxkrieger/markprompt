@@ -7,7 +7,7 @@ import useUser from '@/lib/hooks/use-user';
 import { NavLayout } from './NavLayout';
 import SubTabs, { SubTabItem } from './SubTabs';
 
-export type NavSubtabsLayoutProps = {
+export interface NavSubtabsLayoutProps {
   title: string;
   titleComponent?: ReactNode;
   noHeading?: boolean;
@@ -16,7 +16,7 @@ export type NavSubtabsLayoutProps = {
   SubHeading?: ReactNode;
   RightHeading?: ReactNode;
   children?: ReactNode;
-};
+}
 
 export const NavSubtabsLayout: FC<NavSubtabsLayoutProps> = ({
   title,
