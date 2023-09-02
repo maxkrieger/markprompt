@@ -1,11 +1,5 @@
 import cn from 'classnames';
-import {
-  CommandIcon,
-  FileTextIcon,
-  HashIcon,
-  SearchIcon,
-  SparklesIcon,
-} from 'lucide-react';
+import { FileTextIcon, HashIcon, SearchIcon, SparklesIcon } from 'lucide-react';
 import { ReactNode, useEffect, useState } from 'react';
 
 interface SearchResult {

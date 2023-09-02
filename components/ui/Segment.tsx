@@ -64,7 +64,7 @@ export const Segment: FC<SegmentProps> = ({
                 'subtle-underline': selected === i && variant === 'text',
               },
             )}
-            onClick={(e) => {
+            onClick={() => {
               setHasInteractedOnce(true);
               onChange(i);
             }}

@@ -348,7 +348,7 @@ const PlaygroundDashboard: FC<PlaygroundDashboardProps> = ({
     mutate: mutateFiles,
     loading: loadingFiles,
   } = useFiles();
-  const { didCompleteFirstQuery, setDidCompleteFirstQuery } = useAppContext();
+  const { didCompleteFirstQuery } = useAppContext();
   const {
     sources,
     mutate: mutateSources,
@@ -371,8 +371,8 @@ const PlaygroundDashboard: FC<PlaygroundDashboardProps> = ({
     overlayMessageHeight: 0,
   });
   const [forceRetrain, setForceRetrain] = useState(false);
-  const [isLoadingResponse, setIsLoadingResponse] = useState(false);
-  const [isPlaygroundVisible, setPlaygroundVisible] = useState(true);
+  const [isLoadingResponse] = useState(false);
+  const [isPlaygroundVisible] = useState(true);
   const [isPlaygroundLoaded, setPlaygroundLoaded] = useState(false);
   const [sourceToRemove, setSourceToRemove] = useState<DbSource | undefined>(
     undefined,

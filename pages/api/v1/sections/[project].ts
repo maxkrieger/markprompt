@@ -149,6 +149,7 @@ export default async function handler(
         // We keep the following fields for backwards compatibility
         path: section.files_path,
         source_type: section.source_type,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         source_data: section.source_data as any,
       };
     }),

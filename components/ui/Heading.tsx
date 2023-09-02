@@ -17,7 +17,6 @@ export const Heading = ({
   hidden = false,
   ignore = false,
   style = {},
-  nextElement,
   ...props
 }: any) => {
   const context = useContext(MarkdocContext);

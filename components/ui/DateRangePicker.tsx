@@ -84,7 +84,7 @@ export const DateRangePicker = ({
           >
             {Object.keys(FixedDateRange)
               .filter((rangeKey) => isNaN(Number(rangeKey)))
-              .map((rangeKey, i) => {
+              .map((rangeKey) => {
                 const range =
                   FixedDateRange[rangeKey as keyof typeof FixedDateRange];
                 const checked = range === selectedFixedRange;

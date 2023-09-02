@@ -185,6 +185,7 @@ export default async function handler(
       if (body?.files && Array.isArray(body.files)) {
         // v1
         filesWithPath = body.files
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           .map((f: any) => {
             const path = f.path || f.id; // f.id for backwards compatibility
 

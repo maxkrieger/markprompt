@@ -78,7 +78,7 @@ export const Editor: FC<EditorProps> = ({ filePath }) => {
     );
   }, [source]);
 
-  const { markdownContent, filename } = useMemo(() => {
+  const { markdownContent } = useMemo(() => {
     if (!file?.raw_content || !source) {
       return { markdownContent: '', filename: '' };
     }

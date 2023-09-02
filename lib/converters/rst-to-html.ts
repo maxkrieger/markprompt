@@ -182,8 +182,8 @@ const renderLeafElement = (
   tag: string,
   className: string,
   element: any,
-  level = 0,
-  indent = 2,
+  _level = 0,
+  _indent = 2,
 ) => {
   return `<${tag} class="${className}">${element.value.replace(
     /\n$/,

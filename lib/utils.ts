@@ -24,7 +24,6 @@ import { GitHubIcon } from '@/components/icons/GitHub';
 import { MotifIcon } from '@/components/icons/Motif';
 import {
   DateCountHistogramEntry,
-  DbSource,
   FileSectionHeading,
   FileSectionMeta,
   FileType,
@@ -39,7 +38,7 @@ import {
   WebsiteSourceDataType,
 } from '@/types/types';
 
-import { APPROX_CHARS_PER_TOKEN, MIN_SLUG_LENGTH } from './constants';
+import { MIN_SLUG_LENGTH } from './constants';
 import { removeSchema } from './utils.edge';
 
 const lookup = [
@@ -628,15 +627,15 @@ export const getGitHubOwnerRepoString = (url: string) => {
 export const getLabelForSource = (source: Source, inline: boolean) => {
   switch (source.type) {
     case 'github': {
-      const data = source.data as GitHubSourceDataType;
+      const data = source.data as unknown as GitHubSourceDataType;
       return getGitHubOwnerRepoString(data.url);
     }
     case 'motif': {
-      const data = source.data as MotifSourceDataType;
+      const data = source.data as unknown as MotifSourceDataType;
       return data.projectDomain;
     }
     case 'website': {
-      const data = source.data as WebsiteSourceDataType;
+      const data = source.data as unknown as WebsiteSourceDataType;
       return removeSchema(toNormalizedUrl(data.url));
     }
     case 'file-upload':
@@ -651,7 +650,7 @@ export const getLabelForSource = (source: Source, inline: boolean) => {
 export const getURLForSource = (source: Source) => {
   switch (source.type) {
     case 'github': {
-      const data = source.data as GitHubSourceDataType;
+      const data = source.data as unknown as GitHubSourceDataType;
       const baseUrl = data.url;
       if (data.branch) {
         return baseUrl + '/tree/' + data.branch;
@@ -659,11 +658,11 @@ export const getURLForSource = (source: Source) => {
       return baseUrl;
     }
     case 'motif': {
-      const data = source.data as MotifSourceDataType;
+      const data = source.data as unknown as MotifSourceDataType;
       return `https://${data.projectDomain}.motif.land`;
     }
     case 'website': {
-      const data = source.data as WebsiteSourceDataType;
+      const data = source.data as unknown as WebsiteSourceDataType;
       return toNormalizedUrl(data.url);
     }
     default:
@@ -674,7 +673,7 @@ export const getURLForSource = (source: Source) => {
 export const getFullURLForPath = (source: Source, path: string) => {
   switch (source.type) {
     case 'github': {
-      const data = source.data as GitHubSourceDataType;
+      const data = source.data as unknown as GitHubSourceDataType;
       return `${data.url}/blob/${data.branch || 'main'}/${path}`;
     }
     case 'website': {
@@ -703,7 +702,7 @@ export const getAccessoryLabelForSource = (
 ): { label: string; Icon?: JSXElementConstructor<any> } | undefined => {
   switch (source.type) {
     case 'github': {
-      const data = source.data as GitHubSourceDataType;
+      const data = source.data as unknown as GitHubSourceDataType;
       if (data.branch) {
         return { label: data.branch, Icon: GitBranchIcon };
       }
@@ -823,8 +822,7 @@ export const splitIntoSubstringsOfMaxLength = (
   const result = [];
   let currentSubstring = '';
 
-  for (let i = 0; i < words.length; i++) {
-    const word = words[i];
+  for (const word of words) {
     if (currentSubstring.length + word.length <= maxLength) {
       currentSubstring += (currentSubstring.length > 0 ? ' ' : '') + word;
     } else {

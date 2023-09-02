@@ -2,8 +2,6 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
 import { FC } from 'react';
 
-import { DbFile } from '@/types/types';
-
 import { Editor } from './Editor';
 
 interface EditorDialogProps {

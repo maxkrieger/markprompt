@@ -35,7 +35,7 @@ import {
   getChatCompletionsUrl,
   stringToLLMInfo,
 } from '@/lib/utils';
-import { isRequestFromMarkprompt, safeParseInt } from '@/lib/utils.edge';
+import { isRequestFromMarkprompt } from '@/lib/utils.edge';
 import {
   approximatedTokenCount,
   isFalsyQueryParam,

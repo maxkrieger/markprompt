@@ -65,6 +65,7 @@ const getCodeOptionsToDisplay = (
     // in store so that they are not reset if accidentally search is disabled,
     // yet we don't want the provider options to be in the code snippets if
     // search is disabled.
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { search, ...rest } = diffOptions;
     diffOptions = rest;
   }

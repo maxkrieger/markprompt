@@ -48,7 +48,6 @@ import {
 } from '@/lib/utils.nodeps';
 import {
   ApiError,
-  DbQueryStat,
   FileSectionMatchResult,
   FileSectionMeta,
   OpenAIModelIdWithType,

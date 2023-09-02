@@ -47,6 +47,7 @@ type Data =
     }
   | {
       data: SearchResult[];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       debug?: any;
     };
 
@@ -111,6 +112,7 @@ export default async function handler(
 
   let config = {};
   try {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     config = JSON.parse((params.config || '') as string);
   } catch {
     // Do nothing
@@ -425,7 +427,7 @@ export default async function handler(
             fileData.meta,
             fileData.source.type,
             fileData.source.data,
-            fileSectionData.meta as any,
+            fileSectionData.meta as FileSectionMeta,
           );
 
           return {

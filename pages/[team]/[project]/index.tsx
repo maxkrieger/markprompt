@@ -45,8 +45,6 @@ import {
   getAccessoryLabelForSource,
   getIconForSource,
   getLabelForSource,
-  getUrlPath,
-  isUrl,
   pluralize,
 } from '@/lib/utils';
 import { getNameForPath } from '@/lib/utils.nodeps';
@@ -95,23 +93,6 @@ const RemoveSourceDialog = dynamic(
 const FileDnd = dynamic(() => import('@/components/files/FileDnd'), {
   loading: () => Loading,
 });
-
-const getBasePath = (pathWithFile: string) => {
-  if (isUrl(pathWithFile)) {
-    return getUrlPath(pathWithFile);
-  }
-
-  if (!pathWithFile.includes('/')) {
-    return '/';
-  }
-
-  const parts = pathWithFile.split('/');
-  if (parts.length <= 2 && pathWithFile.startsWith('/')) {
-    return '/';
-  } else {
-    return parts.slice(0, -1).join('/').replace(/^\//, '');
-  }
-};
 
 interface SourceItemProps {
   source: DbSource;

@@ -41,12 +41,14 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     .limit(1)
     .maybeSingle();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const projectKey = (data?.projects as any)?.public_api_key;
 
   if (error || !data?.config || !projectKey) {
     throw new Error('Failed to fetch config');
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const config = data.config as any;
 
   const promptConfig: PromptConfig = {

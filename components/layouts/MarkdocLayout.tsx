@@ -284,12 +284,12 @@ export const useTableOfContents = (toc: TOC) => {
       const sortedHeadings = headings.concat([]).sort((a, b) => a.top - b.top);
       const top = window.pageYOffset + scrollMt + 1;
       let current = sortedHeadings[0].id;
-      for (let i = 0; i < sortedHeadings.length; i++) {
+      for (const heading of sortedHeadings) {
         if (
-          top >= sortedHeadings[i].top &&
-          (sortedHeadings[i].level === 2 || sortedHeadings[i].level === 3)
+          top >= heading.top &&
+          (heading.level === 2 || heading.level === 3)
         ) {
-          current = sortedHeadings[i].id;
+          current = heading.id;
         }
       }
       setCurrentSection(current);

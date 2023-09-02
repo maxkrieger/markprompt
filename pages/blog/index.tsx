@@ -81,6 +81,7 @@ const BlogIndexPage: FC<InferGetStaticPropsType<typeof getStaticProps>> = ({
             </div>
           </Link>
           <div className="mt-4 grid w-full max-w-full grid-cols-1 gap-8 sm:grid-cols-3">
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             {otherEntries.map((entry: any, i: number) => {
               return (
                 <Link key={`blog-${i}`} href={`/blog/${entry.path}`}>

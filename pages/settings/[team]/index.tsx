@@ -157,12 +157,14 @@ const TeamSettingsPage = () => {
                     Connected as{' '}
                     <GitHubIcon className="ml-1 mr-1 inline-block h-3 w-3" />
                     <a
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
                       href={`https://github.com/${(githubToken?.meta as any)
                         ?.login}`}
                       className="subtle-underline"
                       target="_blank"
                       rel="noreferrer"
                     >
+                      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                       {(githubToken?.meta as any)?.login || 'Unknown'}
                     </a>
                     .
@@ -220,9 +222,11 @@ const TeamSettingsPage = () => {
                 <Switch.Root
                   className="switch-root"
                   id="send-weekly-updates"
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   checked={(user.config as any)?.sendWeeklyUpdates !== false}
                   onCheckedChange={async (checked: boolean) => {
                     const config = {
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
                       ...((user.config as any) || {}),
                       sendWeeklyUpdates: checked,
                     };

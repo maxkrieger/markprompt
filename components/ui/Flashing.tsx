@@ -1,12 +1,5 @@
 import cn from 'classnames';
-import {
-  Children,
-  cloneElement,
-  FC,
-  isValidElement,
-  ReactNode,
-  useState,
-} from 'react';
+import { Children, cloneElement, FC, isValidElement, ReactNode } from 'react';
 
 interface FlashingProps {
   active: number;

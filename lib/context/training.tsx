@@ -351,7 +351,7 @@ const TrainingContextProvider = (props: PropsWithChildren) => {
     ) => {
       switch (source.type) {
         case 'github': {
-          const data = source.data as GitHubSourceDataType;
+          const data = source.data as unknown as GitHubSourceDataType;
           try {
             console.info('Fetching GitHub archive for', data.url);
             const fileData = await getGitHubFiles(
@@ -386,7 +386,7 @@ const TrainingContextProvider = (props: PropsWithChildren) => {
           break;
         }
         case 'motif': {
-          const data = source.data as MotifSourceDataType;
+          const data = source.data as unknown as MotifSourceDataType;
 
           try {
             const filesMetadata = await getMotifPublicFileMetadata(
@@ -417,7 +417,7 @@ const TrainingContextProvider = (props: PropsWithChildren) => {
           break;
         }
         case 'website': {
-          const data = source.data as WebsiteSourceDataType;
+          const data = source.data as unknown as WebsiteSourceDataType;
           const baseUrl = toNormalizedUrl(data.url);
           const origin = toNormalizedOrigin(baseUrl);
 

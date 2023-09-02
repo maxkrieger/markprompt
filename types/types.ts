@@ -214,7 +214,7 @@ export type FileSectionData = {
 
 export interface FileSectionsData {
   sections: FileSectionData[];
-  meta: { title: string } & any;
+  meta: { title: string } & Record<string, string | number | boolean>;
   leadFileHeading: string | undefined;
 }
 
@@ -240,4 +240,5 @@ export type SerializableMarkpromptOptions = Omit<
   };
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type OpenAIErrorResponse = any;

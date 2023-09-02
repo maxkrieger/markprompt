@@ -8,7 +8,7 @@ import {
   FormikErrors,
   FormikValues,
 } from 'formik';
-import { Clipboard, X, Trash2, RefreshCw } from 'lucide-react';
+import { Clipboard, RefreshCw, Trash2, X } from 'lucide-react';
 import Link from 'next/link';
 import Router, { useRouter } from 'next/router';
 import { useCallback, useState } from 'react';
@@ -49,7 +49,7 @@ import {
   isValidDomain,
   truncateMiddle,
 } from '@/lib/utils';
-import { getDomain, removeSchema } from '@/lib/utils.edge';
+import { getDomain } from '@/lib/utils.edge';
 import { Domain, Project, Token } from '@/types/types';
 
 const ProjectSettingsPage = () => {
