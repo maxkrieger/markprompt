@@ -152,7 +152,7 @@ const Usage = () => {
         ({
           date: parseISO(d.date),
           count: d.occurrences,
-        } as DateCountHistogramEntry),
+        }) as DateCountHistogramEntry,
     );
   }, [queriesHistogramResponse]);
 

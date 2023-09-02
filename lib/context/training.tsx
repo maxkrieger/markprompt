@@ -460,9 +460,8 @@ const TrainingContextProvider = (props: PropsWithChildren) => {
 
               while (linksToProcess.length > 0) {
                 try {
-                  const processedContent = await generateEmbeddingsForUrls(
-                    linksToProcess,
-                  );
+                  const processedContent =
+                    await generateEmbeddingsForUrls(linksToProcess);
 
                   const discoveredLinks = !processedContent
                     ? []

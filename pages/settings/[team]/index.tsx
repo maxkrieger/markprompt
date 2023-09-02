@@ -157,9 +157,8 @@ const TeamSettingsPage = () => {
                     Connected as{' '}
                     <GitHubIcon className="ml-1 mr-1 inline-block h-3 w-3" />
                     <a
-                      href={`https://github.com/${
-                        (githubToken?.meta as any)?.login
-                      }`}
+                      href={`https://github.com/${(githubToken?.meta as any)
+                        ?.login}`}
                       className="subtle-underline"
                       target="_blank"
                       rel="noreferrer"

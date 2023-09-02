@@ -260,9 +260,8 @@ export default async function handler(
     // Check the checksum, and skip if equals
     const contentChecksum = createChecksum(file.content);
 
-    const existingChecksum = checksums.find(
-      (c) => c.path === file.path,
-    )?.checksum;
+    const existingChecksum = checksums.find((c) => c.path === file.path)
+      ?.checksum;
 
     if (
       !forceRetrain &&

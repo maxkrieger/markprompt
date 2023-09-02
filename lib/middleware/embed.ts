@@ -66,8 +66,8 @@ export default async function EmbedMiddleware(req: NextRequest) {
       const el = document.querySelector('#markprompt');
 
       markprompt("${params.projectKey}", el, ${JSON.stringify(
-      markpromptOptions,
-    )});
+        markpromptOptions,
+      )});
     </script>
   </body>
 </html>

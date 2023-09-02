@@ -154,7 +154,7 @@
   color: var(--markprompt-foreground);
   border-left-width: 0.25rem;
   border-left-color: var(--markprompt-border);
-  quotes: '\201C''\201D''\2018''\2019';
+  quotes: '\201C' '\201D' '\2018' '\2019';
   margin-top: 1.3333333em;
   margin-bottom: 1.3333333em;
   padding-left: 1.1111111em;

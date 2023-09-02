@@ -110,7 +110,7 @@ export default function useInsights() {
         ({
           date: parseISO(d.date),
           count: d.occurrences,
-        } as DateCountHistogramEntry),
+        }) as DateCountHistogramEntry,
     );
   }, [queriesHistogramResponse]);
 
