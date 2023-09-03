@@ -10,6 +10,10 @@ import {
   ReconnectInterval,
 } from 'eventsource-parser';
 import type { NextRequest } from 'next/server';
+import {
+  ChatCompletionRequestMessage,
+  ChatCompletionRequestMessageRoleEnum,
+} from 'openai';
 
 import {
   getHeaders,
@@ -35,7 +39,7 @@ import {
   getChatCompletionsUrl,
   stringToLLMInfo,
 } from '@/lib/utils';
-import { isRequestFromMarkprompt, safeParseInt } from '@/lib/utils.edge';
+import { isRequestFromMarkprompt } from '@/lib/utils.edge';
 import {
   approximatedTokenCount,
   isFalsyQueryParam,
@@ -50,17 +54,11 @@ import {
   Project,
 } from '@/types/types';
 
-// todo: replace with type from @markprompt/core
-interface ChatMessage {
-  content: string;
-  role: 'user' | 'assistant' | 'system';
-}
-
 export const config = {
   runtime: 'edge',
 };
 
-function isChatMessages(data: unknown): data is ChatMessage[] {
+function isChatMessages(data: unknown): data is ChatCompletionRequestMessage[] {
   if (!data) return false;
   if (!Array.isArray(data)) return false;
   return data.every((d) => {
@@ -92,7 +90,7 @@ const getSupportedChatModelValueOrFallback = (
 };
 
 const getPayload = (
-  messages: ChatMessage[],
+  messages: ChatCompletionRequestMessage[],
   modelId: OpenAIChatCompletionsModelId,
   temperature: number,
   topP: number,
@@ -126,21 +124,26 @@ const supabaseAdmin = createClient<Database>(
 
 const allowedMethods = ['POST'];
 
-const buildSystemMessage = (
-  systemPromptTemplate: string,
+const buildInitMessages = (
+  systemPrompt: string,
   contextSections: string,
-  iDontKnowMessage: string,
   doNotInjectContext = false,
-) => {
-  if (doNotInjectContext) {
-    return systemPromptTemplate;
+): ChatCompletionRequestMessage[] => {
+  const initMessages: ChatCompletionRequestMessage[] = [
+    {
+      role: ChatCompletionRequestMessageRoleEnum.System,
+      content: systemPrompt,
+    },
+  ];
+
+  if (!doNotInjectContext) {
+    initMessages.push({
+      role: ChatCompletionRequestMessageRoleEnum.System,
+      content: stripIndent`Here is a set of context sections which may contain valuable information to answer the question. It is in the form of sections preceded by a section id. You must not mention that the answer is based on this context.\n\n${contextSections}`,
+    });
   }
 
-  return stripIndent(
-    `${systemPromptTemplate}\n\nBelow is a set of context sections which may contain valuable information to answer the question. It is in the form of sections preceded by a section id. If you are unsure and the answer is not explicitly written in the provided sections, say "${
-      iDontKnowMessage || "I don't know"
-    }". You should not mention that the answer is based on this context.\n\n---\n${contextSections}\n---`,
-  );
+  return initMessages;
 };
 
 export default async function handler(req: NextRequest) {
@@ -196,17 +199,17 @@ export default async function handler(req: NextRequest) {
       return new Response('Project not found', { status: 400 });
     }
 
+    const projectId = projectIdParam as Project['id'];
+
     if (!isChatMessages(messages)) {
       console.error(
-        `[COMPLETIONS] [${projectIdParam}] No messages or malformatted messages provided.`,
+        `[COMPLETIONS] [${projectId}] No messages or malformatted messages provided.`,
       );
 
       return new Response('No messages or malformatted messages provided.', {
         status: 400,
       });
     }
-
-    const projectId = projectIdParam as Project['id'];
 
     // Apply completions rate limits, in addition to middleware rate limits.
     const rateLimitResult = await checkCompletionsRateLimits({
@@ -246,7 +249,7 @@ export default async function handler(req: NextRequest) {
       projectId,
     );
 
-    const lastMessage = messages[messages.length - 1].content;
+    const lastMessage = messages[messages.length - 1].content || '';
     const sanitizedQuery = lastMessage.trim().replace('\n', ' ');
 
     const pastUserMessages = messages
@@ -288,6 +291,7 @@ export default async function handler(req: NextRequest) {
           'completions',
           supabaseAdmin,
         );
+
         for (const section of sectionsResponse.fileSections) {
           // Make sure not to include redundant sections
           if (
@@ -342,14 +346,17 @@ export default async function handler(req: NextRequest) {
     let numTokens = 0;
     let contextText = '';
 
-    // todo: should we create references for each message?
+    // TODO: should we create references for each message?
     const references: FileSectionReference[] = [];
     const systemPrompt =
-      (params.systemPrompt as string) || DEFAULT_SYSTEM_PROMPT.template!;
+      (params.systemPrompt as string) || DEFAULT_SYSTEM_PROMPT.content!;
 
     const approxMessagesTokens =
       approximatedTokenCount(systemPrompt) +
-      messages.reduce((acc, m) => acc + approximatedTokenCount(m.content), 0);
+      messages.reduce(
+        (acc, m) => acc + approximatedTokenCount(m.content || ''),
+        0,
+      );
 
     const maxTokensWithBuffer =
       0.9 * getChatCompletionModelMaxTokenCount(modelId);
@@ -381,23 +388,14 @@ export default async function handler(req: NextRequest) {
 
     const referencePaths = references.map((r) => r.file.path);
 
-    const fullSystemMessage = buildSystemMessage(
+    const initMessages = buildInitMessages(
       systemPrompt,
       contextText,
-      iDontKnowMessage,
       !!params.doNotInjectContext,
     );
 
-    const messagesWithSystemMessage = [
-      {
-        role: 'system',
-        content: fullSystemMessage,
-      },
-      ...messages,
-    ] satisfies ChatMessage[];
-
     const payload = getPayload(
-      messagesWithSystemMessage,
+      [...initMessages, ...messages],
       modelId,
       params.temperature ?? 0.1,
       params.topP ?? 1,
@@ -428,7 +426,7 @@ export default async function handler(req: NextRequest) {
     });
 
     const debugInfo = {
-      fullSystemMessage,
+      initMessages,
       ts: { sections: sectionsDelta },
     };
 

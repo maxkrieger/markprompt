@@ -442,8 +442,9 @@ const PlaygroundDashboard: FC<PlaygroundDashboardProps> = ({
     }
 
     if (isTrained && !didCompleteFirstQuery) {
-      return 'Now ask a question to your content';
+      return 'Now ask a question';
     }
+
     if (didCompleteFirstQuery && isOnboarding) {
       return (
         <span>
@@ -835,24 +836,6 @@ const PlaygroundDashboard: FC<PlaygroundDashboardProps> = ({
                   left={0}
                   width={overlayDimensions.overlayMessageLeft}
                   height={overlayDimensions.previewContainerHeight / 2 - 61}
-                />
-              )}
-              {isTrained && !didCompleteFirstQuery && !isLoadingResponse && (
-                <LinesContainer
-                  position="top"
-                  isDark={isDark}
-                  onOverlay={false}
-                  top={
-                    overlayDimensions.playgroundTop +
-                    (theme.size === 'sm' ? 105 : 107)
-                  }
-                  left={overlayDimensions.playgroundLeft + 90}
-                  width={overlayDimensions.playgroundWidth / 2 - 90}
-                  height={
-                    overlayDimensions.overlayMessageTop -
-                    overlayDimensions.playgroundTop -
-                    (theme.size === 'sm' ? 105 : 107)
-                  }
                 />
               )}
               {isTrained &&

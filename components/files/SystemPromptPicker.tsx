@@ -3,7 +3,7 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import { FC, useMemo } from 'react';
 
 import { useConfigContext } from '@/lib/context/config';
-import { DEFAULT_SYSTEM_PROMPT, predefinedSystemPrompts } from '@/lib/prompt';
+import { predefinedSystemPrompts } from '@/lib/prompt';
 
 import { SelectItem } from '../ui/Select';
 
