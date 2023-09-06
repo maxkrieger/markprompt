@@ -41,14 +41,9 @@ import {
   stringToLLMInfo,
 } from '@/lib/utils';
 import { isRequestFromMarkprompt, safeParseInt } from '@/lib/utils.edge';
-import {
-  approximatedTokenCount,
-  isFalsyQueryParam,
-  isTruthyQueryParam,
-} from '@/lib/utils.nodeps';
+import { approximatedTokenCount, isTruthyQueryParam } from '@/lib/utils.nodeps';
 import {
   ApiError,
-  DbQueryStat,
   FileSectionMatchResult,
   FileSectionMeta,
   OpenAIModelIdWithType,
@@ -169,20 +164,9 @@ export default async function handler(req: NextRequest) {
       (params.iDontKnowMessage as string) || // v0
       I_DONT_KNOW;
 
-    let stream = true;
-    if (isFalsyQueryParam(params.stream)) {
-      stream = false;
-    }
-
-    let excludeFromInsights = false;
-    if (isTruthyQueryParam(params.excludeFromInsights)) {
-      excludeFromInsights = true;
-    }
-
-    let redact = false;
-    if (isTruthyQueryParam(params.redact)) {
-      redact = true;
-    }
+    const stream = isTruthyQueryParam(params.stream);
+    const excludeFromInsights = isTruthyQueryParam(params.excludeFromInsights);
+    const redact = isTruthyQueryParam(params.redact);
 
     const { pathname, searchParams } = new URL(req.url);
 
@@ -253,12 +237,12 @@ export default async function handler(req: NextRequest) {
     try {
       const sectionsResponse = await getMatchingSections(
         sanitizedQuery,
-        prompt,
         params.sectionsMatchThreshold,
         params.sectionsMatchCount,
         projectId,
         byoOpenAIKey,
         'completions',
+        true,
         supabaseAdmin,
       );
       fileSections = sectionsResponse.fileSections;
@@ -331,7 +315,7 @@ export default async function handler(req: NextRequest) {
     const referencePaths = references.map((r) => r.file.path);
 
     const fullPrompt = buildFullPrompt(
-      (params.systemPrompt as string) || DEFAULT_SYSTEM_PROMPT.template!,
+      (params.systemPrompt as string) || DEFAULT_SYSTEM_PROMPT.content!,
       contextText,
       sanitizedQuery,
       iDontKnowMessage,

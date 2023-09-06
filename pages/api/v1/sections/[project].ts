@@ -109,12 +109,12 @@ export default async function handler(
   try {
     const sectionsResponse = await getMatchingSections(
       sanitizedQuery,
-      prompt,
       params.sectionsMatchThreshold,
       params.sectionsMatchCount,
       projectId,
       byoOpenAIKey,
       'completions',
+      true,
       supabaseAdmin,
     );
     fileSections = sectionsResponse.fileSections;

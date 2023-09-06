@@ -77,38 +77,37 @@ export const updatePrompt = async (
 };
 
 export const getMatchingSections = async (
-  sanitizedQuery: string,
-  verbatimPrompt: string,
+  content: string,
   sectionsMatchThreshold: number | undefined,
   sectionsMatchCount: number | undefined,
   projectId: Project['id'],
   byoOpenAIKey: string | undefined,
   source: 'completions' | 'sections',
+  moderate: boolean,
   supabaseAdmin: SupabaseClient<Database>,
 ): Promise<{
   fileSections: FileSectionMatchResult[];
   promptEmbedding: number[];
 }> => {
-  // Moderate the content
-  const moderationResponse = await createModeration(
-    sanitizedQuery,
-    byoOpenAIKey,
-  );
+  if (moderate) {
+    // Moderate the content
+    const moderationResponse = await createModeration(content, byoOpenAIKey);
 
-  if ('error' in moderationResponse) {
-    console.error(
-      `[${source.toUpperCase()}] [CREATE-EMBEDDING] [${projectId}] - Error moderating content for prompt '${verbatimPrompt}': ${
-        moderationResponse.error
-      }`,
-    );
-    throw new ApiError(
-      400,
-      `Content moderation failed: ${moderationResponse.error.message}`,
-    );
-  }
+    if ('error' in moderationResponse) {
+      console.error(
+        `[${source.toUpperCase()}] [CREATE-EMBEDDING] [${projectId}] - Error moderating content for prompt '${content}': ${
+          moderationResponse.error
+        }`,
+      );
+      throw new ApiError(
+        400,
+        `Content moderation failed: ${moderationResponse.error.message}`,
+      );
+    }
 
-  if (moderationResponse?.results?.[0]?.flagged) {
-    throw new ApiError(400, 'Flagged content');
+    if (moderationResponse?.results?.[0]?.flagged) {
+      throw new ApiError(400, 'Flagged content');
+    }
   }
 
   let embeddingResult:
@@ -121,7 +120,7 @@ export const getMatchingSections = async (
     // too_many_requests.
     const modelId: OpenAIEmbeddingsModelId = 'text-embedding-ada-002';
     embeddingResult = await backOff(
-      () => createEmbedding(sanitizedQuery, byoOpenAIKey, modelId),
+      () => createEmbedding(content, byoOpenAIKey, modelId),
       {
         startingDelay: 10000,
         numOfAttempts: 10,
@@ -143,21 +142,18 @@ export const getMatchingSections = async (
     }
   } catch (error) {
     console.error(
-      `[${source.toUpperCase()}] [CREATE-EMBEDDING] [${projectId}] - Error creating embedding for prompt '${verbatimPrompt}': ${error}`,
+      `[${source.toUpperCase()}] [CREATE-EMBEDDING] [${projectId}] - Error creating embedding for prompt '${content}': ${error}`,
     );
     throw new ApiError(
       400,
-      `Error creating embedding for prompt '${verbatimPrompt}': ${error}`,
+      `Error creating embedding for prompt '${content}': ${error}`,
     );
   }
 
   const promptEmbedding = embeddingResult?.data?.[0]?.embedding;
 
   if (!promptEmbedding) {
-    throw new ApiError(
-      400,
-      `Error creating embedding for prompt '${verbatimPrompt}'`,
-    );
+    throw new ApiError(400, `Error creating embedding for prompt '${content}'`);
   }
 
   // We need to use the service_role admin supabase as these

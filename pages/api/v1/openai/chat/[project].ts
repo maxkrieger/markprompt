@@ -1,8 +1,8 @@
+import { init, Tiktoken } from '@dqbd/tiktoken/lite/init';
 import {
   FileSectionReference,
   OpenAIChatCompletionsModelId,
 } from '@markprompt/core';
-import { createClient } from '@supabase/supabase-js';
 import { stripIndent } from 'common-tags';
 import {
   createParser,
@@ -22,9 +22,8 @@ import {
   updatePrompt,
 } from '@/lib/completions';
 import { modelConfigFields } from '@/lib/config';
-import { I_DONT_KNOW, STREAM_SEPARATOR } from '@/lib/constants';
-import { getChatCompletionModelMaxTokenCount } from '@/lib/openai.edge';
-import { track } from '@/lib/posthog';
+import { I_DONT_KNOW } from '@/lib/constants';
+import { createModeration } from '@/lib/openai.edge';
 import { DEFAULT_SYSTEM_PROMPT } from '@/lib/prompt';
 import { checkCompletionsRateLimits } from '@/lib/rate-limits';
 import {
@@ -32,7 +31,16 @@ import {
   getAccessibleInsightsType,
   InsightsType,
 } from '@/lib/stripe/tiers';
-import { getProjectConfigData, getTeamTierInfo } from '@/lib/supabase';
+import {
+  createServiceRoleSupabaseClient,
+  getProjectConfigData,
+  getTeamTierInfo,
+} from '@/lib/supabase';
+import {
+  getChatRequestTokenCount,
+  getMaxTokenCount,
+  getTokenizer,
+} from '@/lib/tokenizer.edge';
 import {
   buildSectionReferenceFromMatchResult,
   getChatCompletionsResponseText,
@@ -40,12 +48,7 @@ import {
   stringToLLMInfo,
 } from '@/lib/utils';
 import { isRequestFromMarkprompt } from '@/lib/utils.edge';
-import {
-  approximatedTokenCount,
-  isFalsyQueryParam,
-  isTruthyQueryParam,
-} from '@/lib/utils.nodeps';
-import { Database } from '@/types/supabase';
+import { isFalsyQueryParam, isTruthyQueryParam } from '@/lib/utils.nodeps';
 import {
   ApiError,
   FileSectionMatchResult,
@@ -58,7 +61,14 @@ export const config = {
   runtime: 'edge',
 };
 
-function isChatMessages(data: unknown): data is ChatCompletionRequestMessage[] {
+// Admin access to Supabase, bypassing RLS.
+const supabaseAdmin = createServiceRoleSupabaseClient();
+
+const allowedMethods = ['POST'];
+
+const isChatMessages = (
+  data: unknown,
+): data is ChatCompletionRequestMessage[] => {
   if (!data) return false;
   if (!Array.isArray(data)) return false;
   return data.every((d) => {
@@ -71,7 +81,7 @@ function isChatMessages(data: unknown): data is ChatCompletionRequestMessage[] {
       (d.role === 'user' || d.role === 'assistant')
     );
   });
-}
+};
 
 const isIDontKnowResponse = (
   responseText: string,
@@ -116,14 +126,6 @@ const getChunkText = (response: any) => {
   return response.choices[0].delta.content;
 };
 
-// Admin access to Supabase, bypassing RLS.
-const supabaseAdmin = createClient<Database>(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || '',
-);
-
-const allowedMethods = ['POST'];
-
 const buildInitMessages = (
   systemPrompt: string,
   contextSections: string,
@@ -146,6 +148,42 @@ const buildInitMessages = (
   return initMessages;
 };
 
+/**
+ * Remove context messages until the entire request fits
+ * the max total token count for that model.
+ *
+ * Accounts for both message and completion token counts.
+ */
+const capMessages = (
+  initMessages: ChatCompletionRequestMessage[],
+  contextMessages: ChatCompletionRequestMessage[],
+  maxCompletionTokenCount: number,
+  modelId: OpenAIChatCompletionsModelId,
+  tokenizer: Tiktoken,
+) => {
+  const maxTotalTokenCount = getMaxTokenCount(modelId);
+  const cappedContextMessages = [...contextMessages];
+  let tokenCount =
+    getChatRequestTokenCount(
+      [...initMessages, ...cappedContextMessages],
+      modelId,
+      tokenizer,
+    ) + maxCompletionTokenCount;
+
+  // Remove earlier context messages until we fit
+  while (tokenCount >= maxTotalTokenCount) {
+    cappedContextMessages.shift();
+    tokenCount =
+      getChatRequestTokenCount(
+        [...initMessages, ...cappedContextMessages],
+        modelId,
+        tokenizer,
+      ) + maxCompletionTokenCount;
+  }
+
+  return [...initMessages, ...cappedContextMessages];
+};
+
 export default async function handler(req: NextRequest) {
   // Preflight check
   if (req.method === 'OPTIONS') {
@@ -166,20 +204,9 @@ export default async function handler(req: NextRequest) {
       (params.iDontKnowMessage as string) || // v0
       I_DONT_KNOW;
 
-    let stream = true;
-    if (isFalsyQueryParam(params.stream)) {
-      stream = false;
-    }
-
-    let excludeFromInsights = false;
-    if (isTruthyQueryParam(params.excludeFromInsights)) {
-      excludeFromInsights = true;
-    }
-
-    let redact = false;
-    if (isTruthyQueryParam(params.redact)) {
-      redact = true;
-    }
+    const stream = !isFalsyQueryParam(params.stream); // Defaults to true
+    const excludeFromInsights = isTruthyQueryParam(params.excludeFromInsights);
+    const redact = isTruthyQueryParam(params.redact);
 
     const { pathname, searchParams } = new URL(req.url);
 
@@ -211,6 +238,31 @@ export default async function handler(req: NextRequest) {
       });
     }
 
+    const contextMessages: ChatCompletionRequestMessage[] = messages
+      .map(({ role, content }) => {
+        if (
+          ![
+            ChatCompletionRequestMessageRoleEnum.User as string,
+            ChatCompletionRequestMessageRoleEnum.Assistant as string,
+          ].includes(role)
+        ) {
+          throw new Error(`Invalid message role '${role}'.`);
+        }
+
+        return { role, content: content?.trim() };
+      })
+      .filter((m) => m.content);
+
+    const userMessages: ChatCompletionRequestMessage[] = contextMessages.filter(
+      ({ role }) => role === ChatCompletionRequestMessageRoleEnum.User,
+    );
+
+    const [userMessage] = userMessages.slice(-1);
+
+    if (!userMessage?.content) {
+      throw new Error("No message with role 'user'");
+    }
+
     // Apply completions rate limits, in addition to middleware rate limits.
     const rateLimitResult = await checkCompletionsRateLimits({
       value: projectId,
@@ -222,9 +274,28 @@ export default async function handler(req: NextRequest) {
       return new Response('Too many requests', { status: 429 });
     }
 
-    // todo: add support for messages to insights
-    let insightsType: InsightsType | undefined = 'advanced';
-    if (!isRequestFromMarkprompt(req.headers.get('origin'))) {
+    const { byoOpenAIKey } = await getProjectConfigData(
+      supabaseAdmin,
+      projectId,
+    );
+
+    // Moderate the content to comply with OpenAI T&C
+    for (const message of contextMessages) {
+      const moderationResponse = await createModeration(
+        message.content as string,
+        byoOpenAIKey,
+      );
+      if (moderationResponse.results?.[0]?.flagged) {
+        throw new ApiError(400, 'Flagged content');
+      }
+    }
+
+    let insightsType: InsightsType | undefined = undefined;
+    if (isRequestFromMarkprompt(req.headers.get('origin'))) {
+      // Completions coming from the dashboard should be tracked to advanced
+      // insights, and we should use all parameter customizations.
+      insightsType = 'advanced';
+    } else {
       // Custom model configurations are part of the Pro and Enterprise plans
       // when used outside of the Markprompt dashboard.
       const teamTierInfo = await getTeamTierInfo(supabaseAdmin, projectId);
@@ -244,70 +315,32 @@ export default async function handler(req: NextRequest) {
       stringToLLMInfo(params?.model).model,
     );
 
-    const { byoOpenAIKey } = await getProjectConfigData(
-      supabaseAdmin,
-      projectId,
-    );
-
-    const lastMessage = messages[messages.length - 1].content || '';
-    const sanitizedQuery = lastMessage.trim().replace('\n', ' ');
-
-    const pastUserMessages = messages
-      .slice(0, -1)
-      .filter((m) => m.role === 'user')
-      .map((m) => m.content);
-
     const sectionsTs = Date.now();
 
     let fileSections: FileSectionMatchResult[] = [];
     let promptEmbedding: number[] | undefined = undefined;
     try {
-      const sectionsResponse = await getMatchingSections(
-        sanitizedQuery,
-        lastMessage,
+      const sanitizedUserMessage = userMessage.content
+        .trim()
+        .replace('\n', ' ');
+
+      const matches = await getMatchingSections(
+        sanitizedUserMessage,
         params.sectionsMatchThreshold,
         params.sectionsMatchCount,
         projectId,
         byoOpenAIKey,
         'completions',
+        false,
         supabaseAdmin,
       );
-      fileSections = sectionsResponse.fileSections;
-      promptEmbedding = sectionsResponse.promptEmbedding;
-
-      if (pastUserMessages.length > 0) {
-        // Find context sections for past messages
-        const combinedMessage = pastUserMessages.join('\n\n');
-        const sanitizedCombinedMessage = combinedMessage
-          .trim()
-          .replace('\n', ' ');
-        const sectionsResponse = await getMatchingSections(
-          sanitizedCombinedMessage,
-          combinedMessage,
-          params.sectionsMatchThreshold,
-          5,
-          projectId,
-          byoOpenAIKey,
-          'completions',
-          supabaseAdmin,
-        );
-
-        for (const section of sectionsResponse.fileSections) {
-          // Make sure not to include redundant sections
-          if (
-            !fileSections.some((s) => {
-              return s.file_sections_content === section.file_sections_content;
-            })
-          ) {
-            fileSections.push(section);
-          }
-        }
-      }
+      fileSections = matches.fileSections;
+      promptEmbedding = matches.promptEmbedding;
     } catch (e) {
       const promptId = await storePromptOrPlaceholder(
         supabaseAdmin,
         projectId,
-        lastMessage,
+        userMessage.content,
         undefined,
         promptEmbedding,
         'no_sections',
@@ -327,8 +360,6 @@ export default async function handler(req: NextRequest) {
     }
 
     const sectionsDelta = Date.now() - sectionsTs;
-
-    track(projectId, 'generate completions', { projectId });
 
     // const { completionsTokensCount } = await getTokenCountsForProject(projectId);
 
@@ -351,24 +382,21 @@ export default async function handler(req: NextRequest) {
     const systemPrompt =
       (params.systemPrompt as string) || DEFAULT_SYSTEM_PROMPT.content!;
 
-    const approxMessagesTokens =
-      approximatedTokenCount(systemPrompt) +
-      messages.reduce(
-        (acc, m) => acc + approximatedTokenCount(m.content || ''),
-        0,
-      );
+    // const approxMessagesTokens =
+    //   approximatedTokenCount(systemPrompt) +
+    //   messages.reduce(
+    //     (acc, m) => acc + approximatedTokenCount(m.content || ''),
+    //     0,
+    //   );
 
-    const maxTokensWithBuffer =
-      0.9 * getChatCompletionModelMaxTokenCount(modelId);
-    const maxCompletionTokens = (params.maxTokens ?? 500) as number;
+    // const maxTokensWithBuffer =
+    //   0.9 * getChatCompletionModelMaxTokenCount(modelId);
+    const maxCompletionTokens = (params.maxTokens ?? 1500) as number;
 
     for (const section of fileSections) {
       numTokens += section.file_sections_token_count;
 
-      if (
-        approxMessagesTokens + maxCompletionTokens + numTokens >=
-        maxTokensWithBuffer
-      ) {
+      if (numTokens >= maxCompletionTokens) {
         break;
       }
 
@@ -386,16 +414,26 @@ export default async function handler(req: NextRequest) {
       references.push(reference);
     }
 
-    const referencePaths = references.map((r) => r.file.path);
-
     const initMessages = buildInitMessages(
       systemPrompt,
       contextText,
       !!params.doNotInjectContext,
     );
 
+    // const model = 'gpt-3.5-turbo-0301'
+    // const maxCompletionTokenCount = 1024
+
+    const tokenizer = await getTokenizer();
+    const cappedMessages: ChatCompletionRequestMessage[] = capMessages(
+      initMessages,
+      contextMessages,
+      maxCompletionTokens,
+      modelId,
+      tokenizer,
+    );
+
     const payload = getPayload(
-      [...initMessages, ...messages],
+      cappedMessages,
       modelId,
       params.temperature ?? 0.1,
       params.topP ?? 1,
@@ -404,8 +442,6 @@ export default async function handler(req: NextRequest) {
       maxCompletionTokens,
       stream,
     );
-
-    console.log('payload', JSON.stringify(payload, null, 2));
 
     // console.log(
     //   'Input tokens',
@@ -438,7 +474,7 @@ export default async function handler(req: NextRequest) {
         const promptId = await storePromptOrPlaceholder(
           supabaseAdmin,
           projectId,
-          lastMessage,
+          userMessage.content,
           undefined,
           promptEmbedding,
           'api_error',
@@ -470,7 +506,7 @@ export default async function handler(req: NextRequest) {
         const promptId = await storePromptOrPlaceholder(
           supabaseAdmin,
           projectId,
-          lastMessage,
+          userMessage.content,
           text,
           promptEmbedding,
           idk ? 'idk' : undefined,
@@ -502,7 +538,6 @@ export default async function handler(req: NextRequest) {
     // All the text associated with this query, to estimate token
     // count.
     let responseText = '';
-    let didSendHeader = false;
 
     const encoder = new TextEncoder();
     const decoder = new TextDecoder();
@@ -514,7 +549,7 @@ export default async function handler(req: NextRequest) {
     const promptId = await storePromptOrPlaceholder(
       supabaseAdmin,
       projectId,
-      lastMessage,
+      userMessage.content,
       '',
       promptEmbedding,
       undefined,
@@ -534,16 +569,6 @@ export default async function handler(req: NextRequest) {
             }
 
             try {
-              if (!didSendHeader) {
-                // Done sending chunks, send references. This will be
-                // deprecated, in favor of passing the full reference
-                // info in the response header.
-                const queue = encoder.encode(
-                  `${JSON.stringify(referencePaths || [])}${STREAM_SEPARATOR}`,
-                );
-                controller.enqueue(queue);
-                didSendHeader = true;
-              }
               const json = JSON.parse(data);
               const text = getChunkText(json);
               if (text?.length > 0) {

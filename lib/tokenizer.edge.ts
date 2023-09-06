@@ -3,6 +3,7 @@ import { init, Tiktoken } from '@dqbd/tiktoken/lite/init';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
 import wasm from '@dqbd/tiktoken/lite/tiktoken_bg.wasm?module';
+import { OpenAIChatCompletionsModelId } from '@markprompt/core';
 import { ChatCompletionRequestMessage } from 'openai';
 
 let tokenizer: Tiktoken | null = null;
@@ -24,12 +25,12 @@ export const getTokenizer = async () => {
  */
 export const getChatRequestTokenCount = (
   messages: ChatCompletionRequestMessage[],
-  model = 'gpt-3.5-turbo-0301',
+  modelId: OpenAIChatCompletionsModelId,
   tokenizer: Tiktoken,
 ): number => {
   const tokensPerRequest = 3; // every reply is primed with <|im_start|>assistant<|im_sep|>
   const numTokens = messages.reduce(
-    (acc, message) => acc + getMessageTokenCount(message, model, tokenizer),
+    (acc, message) => acc + getMessageTokenCount(message, modelId, tokenizer),
     0,
   );
 
@@ -44,35 +45,21 @@ export const getChatRequestTokenCount = (
  */
 export const getMessageTokenCount = (
   message: ChatCompletionRequestMessage,
-  model = 'gpt-3.5-turbo-0301',
+  modelId: OpenAIChatCompletionsModelId,
   tokenizer: Tiktoken,
 ): number => {
   let tokensPerMessage: number;
   let tokensPerName: number;
 
-  switch (model) {
+  switch (modelId) {
     case 'gpt-3.5-turbo':
-      console.warn(
-        'Warning: gpt-3.5-turbo may change over time. Returning num tokens assuming gpt-3.5-turbo-0301.',
-      );
-      return getMessageTokenCount(message, 'gpt-3.5-turbo-0301', tokenizer);
-    case 'gpt-4':
-      console.warn(
-        'Warning: gpt-4 may change over time. Returning num tokens assuming gpt-4-0314.',
-      );
-      return getMessageTokenCount(message, 'gpt-4-0314', tokenizer);
-    case 'gpt-3.5-turbo-0301':
       tokensPerMessage = 4; // every message follows <|start|>{role/name}\n{content}<|end|>\n
       tokensPerName = -1; // if there's a name, the role is omitted
       break;
-    case 'gpt-4-0314':
+    case 'gpt-4':
       tokensPerMessage = 3;
       tokensPerName = 1;
       break;
-    default:
-      throw new Error(
-        `Unknown model '${model}'. See https://github.com/openai/openai-python/blob/main/chatml.md for information on how messages are converted to tokens.`,
-      );
   }
 
   return Object.entries(message).reduce((acc, [key, value]) => {
@@ -84,28 +71,13 @@ export const getMessageTokenCount = (
   }, tokensPerMessage);
 };
 
-/**
- * Get the maximum number of tokens for a model's context.
- *
- * Includes tokens in both message and completion.
- */
-export const getMaxTokenCount = (model: string): number => {
-  switch (model) {
+export const getMaxTokenCount = (
+  modelId: OpenAIChatCompletionsModelId,
+): number => {
+  switch (modelId) {
     case 'gpt-3.5-turbo':
-      console.warn(
-        'Warning: gpt-3.5-turbo may change over time. Returning max num tokens assuming gpt-3.5-turbo-0301.',
-      );
-      return getMaxTokenCount('gpt-3.5-turbo-0301');
+      return 4097;
     case 'gpt-4':
-      console.warn(
-        'Warning: gpt-4 may change over time. Returning max num tokens assuming gpt-4-0314.',
-      );
-      return getMaxTokenCount('gpt-4-0314');
-    case 'gpt-3.5-turbo-0301':
       return 4097;
-    case 'gpt-4-0314':
-      return 4097;
-    default:
-      throw new Error(`Unknown model '${model}'`);
   }
 };
