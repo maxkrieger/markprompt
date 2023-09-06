@@ -23,6 +23,7 @@
   "dependencies": {
     "@changesets/changelog-github": "^0.4.0",
     "@changesets/cli": "^2.0.0",
+    "@dqbd/tiktoken": "^1.0.7",
     "@markdoc/markdoc": "^0.2.2",
     "@markdoc/next.js": "^0.2.2",
     "@markprompt/core": "^0.12.1",

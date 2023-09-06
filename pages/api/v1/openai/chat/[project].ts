@@ -195,7 +195,7 @@ export default async function handler(req: NextRequest) {
     }
 
     if (!projectIdParam) {
-      console.error(`[COMPLETIONS] [${pathname}] Project not found`);
+      console.error(`[CHAT] [${pathname}] Project not found`);
       return new Response('Project not found', { status: 400 });
     }
 
@@ -203,7 +203,7 @@ export default async function handler(req: NextRequest) {
 
     if (!isChatMessages(messages)) {
       console.error(
-        `[COMPLETIONS] [${projectId}] No messages or malformatted messages provided.`,
+        `[CHAT] [${projectId}] No messages or malformatted messages provided.`,
       );
 
       return new Response('No messages or malformatted messages provided.', {
@@ -218,7 +218,7 @@ export default async function handler(req: NextRequest) {
     });
 
     if (!rateLimitResult.result.success) {
-      console.error(`[COMPLETIONS] [RATE-LIMIT] [${projectId}] IP: ${req.ip}`);
+      console.error(`[CHAT] [RATE-LIMIT] [${projectId}] IP: ${req.ip}`);
       return new Response('Too many requests', { status: 429 });
     }
 
@@ -283,7 +283,7 @@ export default async function handler(req: NextRequest) {
           .replace('\n', ' ');
         const sectionsResponse = await getMatchingSections(
           sanitizedCombinedMessage,
-          sanitizedCombinedMessage,
+          combinedMessage,
           params.sectionsMatchThreshold,
           5,
           projectId,
@@ -404,6 +404,8 @@ export default async function handler(req: NextRequest) {
       maxCompletionTokens,
       stream,
     );
+
+    console.log('payload', JSON.stringify(payload, null, 2));
 
     // console.log(
     //   'Input tokens',
