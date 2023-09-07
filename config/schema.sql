@@ -147,6 +147,7 @@ create table public.query_stats (
   id                 uuid primary key default uuid_generate_v4(),
   created_at         timestamp with time zone default timezone('utc'::text, now()) not null,
   project_id         uuid references public.projects on delete cascade not null,
+  conversation_id    uuid references public.conversations on delete cascade,
   prompt             text,
   response           text,
   meta               jsonb,
@@ -159,6 +160,14 @@ create table public.query_stats (
   embedding          vector(1536)
 );
 comment on table public.query_stats is 'Query stats.';
+
+-- Conversations
+create table public.conversations (
+  id         uuid primary key default uuid_generate_v4(),
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  project_id uuid references public.projects on delete cascade not null
+);
+comment on table public.conversations is 'Conversations.';
 
 -- Functions
 
@@ -1185,6 +1194,51 @@ create policy "Users can update query stats associated to projects they have acc
 create policy "Users can delete query stats associated to projects they have access to." on public.query_stats
   for delete using (
     query_stats.project_id in (
+      select projects.id from projects
+      left join memberships
+      on projects.team_id = memberships.team_id
+      where memberships.user_id = auth.uid()
+    )
+  );
+
+-- Conversations
+
+alter table conversations
+  enable row level security;
+
+create policy "Users can only see conversations associated to projects they have access to." on public.conversations
+  for select using (
+    conversations.project_id in (
+      select projects.id from projects
+      left join memberships
+      on projects.team_id = memberships.team_id
+      where memberships.user_id = auth.uid()
+    )
+  );
+
+create policy "Users can insert conversations associated to projects they have access to." on public.conversations
+  for insert with check (
+    conversations.project_id in (
+      select projects.id from projects
+      left join memberships
+      on projects.team_id = memberships.team_id
+      where memberships.user_id = auth.uid()
+    )
+  );
+
+create policy "Users can update conversations associated to projects they have access to." on public.conversations
+  for update using (
+    conversations.project_id in (
+      select projects.id from projects
+      left join memberships
+      on projects.team_id = memberships.team_id
+      where memberships.user_id = auth.uid()
+    )
+  );
+
+create policy "Users can delete conversations associated to projects they have access to." on public.conversations
+  for delete using (
+    conversations.project_id in (
       select projects.id from projects
       left join memberships
       on projects.team_id = memberships.team_id

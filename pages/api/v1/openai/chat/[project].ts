@@ -2,6 +2,7 @@ import { init, Tiktoken } from '@dqbd/tiktoken/lite/init';
 import {
   FileSectionReference,
   OpenAIChatCompletionsModelId,
+  STREAM_SEPARATOR,
 } from '@markprompt/core';
 import { stripIndent } from 'common-tags';
 import {
@@ -198,6 +199,7 @@ export default async function handler(req: NextRequest) {
     let params = await req.json();
 
     const messages = params.messages;
+    const existingConversationId = params.conversationId;
 
     const iDontKnowMessage =
       (params.i_dont_know_message as string) || // v1
@@ -337,9 +339,10 @@ export default async function handler(req: NextRequest) {
       fileSections = matches.fileSections;
       promptEmbedding = matches.promptEmbedding;
     } catch (e) {
-      const promptId = await storePromptOrPlaceholder(
+      const { conversationId, promptId } = await storePromptOrPlaceholder(
         supabaseAdmin,
         projectId,
+        existingConversationId,
         userMessage.content,
         undefined,
         promptEmbedding,
@@ -350,7 +353,7 @@ export default async function handler(req: NextRequest) {
         redact,
       );
 
-      const headers = getHeaders([], promptId);
+      const headers = getHeaders([], conversationId, promptId);
 
       if (e instanceof ApiError) {
         return new Response(e.message, { status: e.code, headers });
@@ -471,9 +474,10 @@ export default async function handler(req: NextRequest) {
     if (!stream) {
       if (!res.ok) {
         const message = await res.text();
-        const promptId = await storePromptOrPlaceholder(
+        const { conversationId, promptId } = await storePromptOrPlaceholder(
           supabaseAdmin,
           projectId,
+          existingConversationId,
           userMessage.content,
           undefined,
           promptEmbedding,
@@ -484,7 +488,7 @@ export default async function handler(req: NextRequest) {
           redact,
         );
 
-        const headers = getHeaders(references, promptId);
+        const headers = getHeaders(references, conversationId, promptId);
 
         return new Response(
           `Unable to retrieve completions response: ${message}`,
@@ -503,9 +507,10 @@ export default async function handler(req: NextRequest) {
         // );
         const text = getChatCompletionsResponseText(json);
         const idk = isIDontKnowResponse(text, iDontKnowMessage);
-        const promptId = await storePromptOrPlaceholder(
+        const { conversationId, promptId } = await storePromptOrPlaceholder(
           supabaseAdmin,
           projectId,
+          existingConversationId,
           userMessage.content,
           text,
           promptEmbedding,
@@ -516,7 +521,7 @@ export default async function handler(req: NextRequest) {
           redact,
         );
 
-        const headers = getHeaders(references, promptId);
+        const headers = getHeaders(references, conversationId, promptId);
 
         return new Response(
           JSON.stringify({
@@ -546,9 +551,10 @@ export default async function handler(req: NextRequest) {
     // the prompt id needs to be sent in the header, which is done immediately.
     // We keep the prompt id and update the prompt with the generated response
     // once it is done.
-    const promptId = await storePromptOrPlaceholder(
+    const { conversationId, promptId } = await storePromptOrPlaceholder(
       supabaseAdmin,
       projectId,
+      existingConversationId,
       userMessage.content,
       '',
       promptEmbedding,
@@ -633,7 +639,7 @@ export default async function handler(req: NextRequest) {
       },
     });
 
-    const headers = getHeaders(references, promptId);
+    const headers = getHeaders(references, conversationId, promptId);
 
     // const encodedDebugInfo = headerEncoder
     //   .encode(JSON.stringify(debugInfo))

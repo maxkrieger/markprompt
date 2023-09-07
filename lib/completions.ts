@@ -9,6 +9,7 @@ import { CreateEmbeddingResponse } from 'openai';
 import { Database } from '@/types/supabase';
 import {
   ApiError,
+  DbConversation,
   DbQueryStat,
   FileSectionMatchResult,
   OpenAIErrorResponse,
@@ -25,6 +26,7 @@ export type PromptNoResponseReason = 'no_sections' | 'idk' | 'api_error';
 const storePrompt = async (
   supabase: SupabaseClient<Database>,
   projectId: Project['id'],
+  conversationId: DbConversation['id'],
   prompt: string | undefined,
   response: string | undefined,
   embedding: number[] | undefined,
@@ -32,7 +34,7 @@ const storePrompt = async (
   references: FileSectionReference[] | undefined,
   redact: boolean,
 ): Promise<DbQueryStat['id'] | undefined> => {
-  const meta = {
+  const meta: any = {
     ...(references && references?.length > 0 ? { references } : {}),
     ...(typeof noResponseReason !== 'undefined' ? { noResponseReason } : {}),
   };
@@ -42,6 +44,7 @@ const storePrompt = async (
     .insert([
       {
         project_id: projectId,
+        conversation_id: conversationId,
         ...(prompt ? { prompt } : {}),
         ...(response ? { response } : {}),
         ...(embedding ? { embedding: embedding as any } : {}),
@@ -197,14 +200,15 @@ export const getMatchingSections = async (
 
 export const getHeaders = (
   references: FileSectionReference[],
-  promptId: DbQueryStat['id'] | undefined = undefined,
+  conversationId: DbConversation['id'] | undefined,
+  promptId: DbQueryStat['id'] | undefined,
 ) => {
   // Headers cannot include non-UTF-8 characters, so make sure any strings
   // we pass in the headers are properly encoded before sending.
   const headers = new Headers();
   const headerEncoder = new TextEncoder();
   const encodedHeaderData = headerEncoder
-    .encode(JSON.stringify({ references, promptId }))
+    .encode(JSON.stringify({ references, conversationId, promptId }))
     .toString();
 
   headers.append('Content-Type', 'application/json');
@@ -212,9 +216,55 @@ export const getHeaders = (
   return headers;
 };
 
+const conversationExists = async (
+  supabase: SupabaseClient<Database>,
+  projectId: Project['id'],
+  conversationId: DbConversation['id'] | undefined,
+): Promise<boolean> => {
+  const { count } = await supabase
+    .from('conversations')
+    .select('id', { count: 'exact' })
+    .match({ id: conversationId, project_id: projectId });
+  return !!(count && count > 0);
+};
+
+const createConversation = async (
+  supabase: SupabaseClient<Database>,
+  projectId: Project['id'],
+): Promise<DbConversation['id'] | undefined> => {
+  const { data } = await supabase
+    .from('conversations')
+    .insert([{ project_id: projectId }])
+    .select('*')
+    .limit(1)
+    .maybeSingle();
+
+  return data?.id;
+};
+
+const getOrCreateConversationId = async (
+  supabase: SupabaseClient<Database>,
+  projectId: Project['id'],
+  existingConversationId: DbConversation['id'] | undefined,
+): Promise<DbConversation['id'] | undefined> => {
+  if (existingConversationId) {
+    // Make sure the conversation still exists
+    const exists = await conversationExists(
+      supabase,
+      projectId,
+      existingConversationId,
+    );
+    if (exists) {
+      return existingConversationId;
+    }
+  }
+  return createConversation(supabase, projectId);
+};
+
 export const storePromptOrPlaceholder = async (
   supabase: SupabaseClient<Database>,
   projectId: Project['id'],
+  existingConversationId: DbConversation['id'] | undefined,
   prompt: string,
   responseText: string | undefined,
   promptEmbedding: number[] | undefined,
@@ -226,11 +276,24 @@ export const storePromptOrPlaceholder = async (
   // If true, the stat will be marked as `unprocessed` and will
   // be processed to redact sensited info.
   redact: boolean,
-): Promise<DbQueryStat['id'] | undefined> => {
+): Promise<{
+  conversationId: DbConversation['id'] | undefined;
+  promptId: DbQueryStat['id'] | undefined;
+}> => {
+  const conversationId = await getOrCreateConversationId(
+    supabase,
+    projectId,
+    existingConversationId,
+  );
+  if (!conversationId) {
+    throw new Error('Unable to create conversation.');
+  }
+
   if (excludeData) {
-    return storePrompt(
+    const promptId = await storePrompt(
       supabase,
       projectId,
+      conversationId,
       undefined,
       undefined,
       undefined,
@@ -238,14 +301,16 @@ export const storePromptOrPlaceholder = async (
       undefined,
       redact,
     );
+    return { conversationId, promptId };
   } else {
     // Store prompt always.
     // Store response in >= basic insights.
     // Store embeddings in >= advanced insights.
     // Store references in >= basic insights.
-    return storePrompt(
+    const promptId = await storePrompt(
       supabase,
       projectId,
+      conversationId,
       prompt,
       insightsType ? responseText : undefined,
       insightsType === 'advanced' ? promptEmbedding : undefined,
@@ -253,5 +318,6 @@ export const storePromptOrPlaceholder = async (
       insightsType ? references : undefined,
       redact,
     );
+    return { conversationId, promptId };
   }
 };

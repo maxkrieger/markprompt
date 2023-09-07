@@ -9,6 +9,49 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      conversations: {
+        Row: {
+          created_at: string
+          id: string
+          project_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          project_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_project_id_fkey"
+            columns: ["project_id"]
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_project_id_fkey"
+            columns: ["project_id"]
+            referencedRelation: "v_file_section_search_infos"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "conversations_project_id_fkey"
+            columns: ["project_id"]
+            referencedRelation: "v_team_project_info"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "conversations_project_id_fkey"
+            columns: ["project_id"]
+            referencedRelation: "v_team_project_usage_info"
+            referencedColumns: ["project_id"]
+          }
+        ]
+      }
       domains: {
         Row: {
           id: number
@@ -374,6 +417,7 @@ export interface Database {
       }
       query_stats: {
         Row: {
+          conversation_id: string
           created_at: string
           downvoted: boolean | null
           embedding: string | null
@@ -387,13 +431,14 @@ export interface Database {
             | null
           project_id: string
           prompt: string | null
-          prompt_encrypted: string | null
+          prompt_clear: string | null
           reference_paths: string[] | null
           response: string | null
           response_clear: string | null
           upvoted: boolean | null
         }
         Insert: {
+          conversation_id: string
           created_at?: string
           downvoted?: boolean | null
           embedding?: string | null
@@ -407,13 +452,14 @@ export interface Database {
             | null
           project_id: string
           prompt?: string | null
-          prompt_encrypted?: string | null
+          prompt_clear?: string | null
           reference_paths?: string[] | null
           response?: string | null
           response_clear?: string | null
           upvoted?: boolean | null
         }
         Update: {
+          conversation_id?: string
           created_at?: string
           downvoted?: boolean | null
           embedding?: string | null
@@ -427,13 +473,19 @@ export interface Database {
             | null
           project_id?: string
           prompt?: string | null
-          prompt_encrypted?: string | null
+          prompt_clear?: string | null
           reference_paths?: string[] | null
           response?: string | null
           response_clear?: string | null
           upvoted?: boolean | null
         }
         Relationships: [
+          {
+            foreignKeyName: "query_stats_conversation_id_fkey"
+            columns: ["conversation_id"]
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "query_stats_project_id_fkey"
             columns: ["project_id"]
@@ -724,9 +776,9 @@ export interface Database {
     Views: {
       decrypted_query_stats: {
         Row: {
+          conversation_id: string | null
           created_at: string | null
           decrypted_prompt: string | null
-          decrypted_prompt_encrypted: string | null
           decrypted_response: string | null
           downvoted: boolean | null
           embedding: string | null
@@ -740,16 +792,16 @@ export interface Database {
             | null
           project_id: string | null
           prompt: string | null
-          prompt_encrypted: string | null
+          prompt_clear: string | null
           reference_paths: string[] | null
           response: string | null
           response_clear: string | null
           upvoted: boolean | null
         }
         Insert: {
+          conversation_id?: string | null
           created_at?: string | null
           decrypted_prompt?: never
-          decrypted_prompt_encrypted?: never
           decrypted_response?: never
           downvoted?: boolean | null
           embedding?: string | null
@@ -763,16 +815,16 @@ export interface Database {
             | null
           project_id?: string | null
           prompt?: string | null
-          prompt_encrypted?: string | null
+          prompt_clear?: string | null
           reference_paths?: string[] | null
           response?: string | null
           response_clear?: string | null
           upvoted?: boolean | null
         }
         Update: {
+          conversation_id?: string | null
           created_at?: string | null
           decrypted_prompt?: never
-          decrypted_prompt_encrypted?: never
           decrypted_response?: never
           downvoted?: boolean | null
           embedding?: string | null
@@ -786,13 +838,19 @@ export interface Database {
             | null
           project_id?: string | null
           prompt?: string | null
-          prompt_encrypted?: string | null
+          prompt_clear?: string | null
           reference_paths?: string[] | null
           response?: string | null
           response_clear?: string | null
           upvoted?: boolean | null
         }
         Relationships: [
+          {
+            foreignKeyName: "query_stats_conversation_id_fkey"
+            columns: ["conversation_id"]
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "query_stats_project_id_fkey"
             columns: ["project_id"]

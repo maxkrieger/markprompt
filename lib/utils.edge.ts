@@ -14,7 +14,7 @@ export const getAppOrigin = (subdomain?: string, forceProduction?: boolean) => {
 };
 
 export const getApiUrl = (
-  api: 'embeddings' | 'completions' | 'sections' | 'search',
+  api: 'embeddings' | 'completions' | 'chat' | 'sections' | 'search',
   forceProduction: boolean,
 ) => {
   return getAppOrigin('api', forceProduction) + '/v1/' + api;

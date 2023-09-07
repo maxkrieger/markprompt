@@ -561,6 +561,10 @@ const PlaygroundDashboard: FC<PlaygroundDashboardProps> = ({
         ...markpromptOptions.prompt,
         apiUrl: getApiUrl('completions', false),
       },
+      chat: {
+        ...markpromptOptions.chat,
+        apiUrl: getApiUrl('chat', false),
+      },
       trigger: { floating: true },
       search: {
         ...markpromptOptions.search,

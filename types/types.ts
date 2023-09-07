@@ -88,6 +88,8 @@ export type OAuthToken =
 export type PromptConfig =
   Database['public']['Tables']['prompt_configs']['Row'];
 export type DbQueryStat = Database['public']['Tables']['query_stats']['Row'];
+export type DbConversation =
+  Database['public']['Tables']['conversations']['Row'];
 
 export type Source = PartialBy<Pick<DbSource, 'type' | 'data'>, 'data'>;
 export type FileData = { path: string; name: string; content: string };

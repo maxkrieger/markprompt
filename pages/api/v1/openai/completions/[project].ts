@@ -248,9 +248,10 @@ export default async function handler(req: NextRequest) {
       fileSections = sectionsResponse.fileSections;
       promptEmbedding = sectionsResponse.promptEmbedding;
     } catch (e) {
-      const promptId = await storePromptOrPlaceholder(
+      const { conversationId, promptId } = await storePromptOrPlaceholder(
         supabaseAdmin,
         projectId,
+        undefined,
         prompt,
         undefined,
         promptEmbedding,
@@ -261,7 +262,7 @@ export default async function handler(req: NextRequest) {
         redact,
       );
 
-      const headers = getHeaders([], promptId);
+      const headers = getHeaders([], conversationId, promptId);
 
       if (e instanceof ApiError) {
         return new Response(e.message, { status: e.code, headers });
@@ -359,9 +360,10 @@ export default async function handler(req: NextRequest) {
     if (!stream) {
       if (!res.ok) {
         const message = await res.text();
-        const promptId = await storePromptOrPlaceholder(
+        const { conversationId, promptId } = await storePromptOrPlaceholder(
           supabaseAdmin,
           projectId,
+          undefined,
           prompt,
           undefined,
           promptEmbedding,
@@ -372,7 +374,7 @@ export default async function handler(req: NextRequest) {
           redact,
         );
 
-        const headers = getHeaders(references, promptId);
+        const headers = getHeaders(references, conversationId, promptId);
 
         return new Response(
           `Unable to retrieve completions response: ${message}`,
@@ -390,9 +392,10 @@ export default async function handler(req: NextRequest) {
         );
         const text = getCompletionsResponseText(json, modelInfo.model);
         const idk = isIDontKnowResponse(text, iDontKnowMessage);
-        const promptId = await storePromptOrPlaceholder(
+        const { conversationId, promptId } = await storePromptOrPlaceholder(
           supabaseAdmin,
           projectId,
+          undefined,
           prompt,
           text,
           promptEmbedding,
@@ -403,7 +406,7 @@ export default async function handler(req: NextRequest) {
           redact,
         );
 
-        const headers = getHeaders(references, promptId);
+        const headers = getHeaders(references, conversationId, promptId);
 
         return new Response(
           JSON.stringify({
@@ -434,9 +437,10 @@ export default async function handler(req: NextRequest) {
     // the prompt id needs to be sent in the header, which is done immediately.
     // We keep the prompt id and update the prompt with the generated response
     // once it is done.
-    const promptId = await storePromptOrPlaceholder(
+    const { conversationId, promptId } = await storePromptOrPlaceholder(
       supabaseAdmin,
       projectId,
+      undefined,
       prompt,
       '',
       promptEmbedding,
@@ -525,7 +529,7 @@ export default async function handler(req: NextRequest) {
       },
     });
 
-    const headers = getHeaders(references, promptId);
+    const headers = getHeaders(references, conversationId, promptId);
 
     // const encodedDebugInfo = headerEncoder
     //   .encode(JSON.stringify(debugInfo))
