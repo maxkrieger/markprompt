@@ -398,63 +398,6 @@ $$;
 
 ALTER FUNCTION "public"."match_file_sections"("project_id" "uuid", "embedding" "public"."vector", "match_threshold" double precision, "match_count" integer, "min_content_length" integer) OWNER TO "postgres";
 
-CREATE OR REPLACE FUNCTION "public"."query_stats_encrypt_secret_prompt"() RETURNS "trigger"
-    LANGUAGE "plpgsql"
-    AS $$
-		BEGIN
-		        new.prompt = CASE WHEN new.prompt IS NULL THEN NULL ELSE
-			CASE WHEN '348d822d-5ac6-4c02-b301-b436a5d17831' IS NULL THEN NULL ELSE pg_catalog.encode(
-			  pgsodium.crypto_aead_det_encrypt(
-				pg_catalog.convert_to(new.prompt, 'utf8'),
-				pg_catalog.convert_to(('')::text, 'utf8'),
-				'348d822d-5ac6-4c02-b301-b436a5d17831'::uuid,
-				NULL
-			  ),
-				'base64') END END;
-		RETURN new;
-		END;
-		$$;
-
-ALTER FUNCTION "public"."query_stats_encrypt_secret_prompt"() OWNER TO "postgres";
-
-CREATE OR REPLACE FUNCTION "public"."query_stats_encrypt_secret_prompt_encrypted"() RETURNS "trigger"
-    LANGUAGE "plpgsql"
-    AS $$
-		BEGIN
-		        new.prompt_encrypted = CASE WHEN new.prompt_encrypted IS NULL THEN NULL ELSE
-			CASE WHEN 'af56c6be-870c-40c6-9127-c4867a14e75e' IS NULL THEN NULL ELSE pg_catalog.encode(
-			  pgsodium.crypto_aead_det_encrypt(
-				pg_catalog.convert_to(new.prompt_encrypted, 'utf8'),
-				pg_catalog.convert_to(('')::text, 'utf8'),
-				'af56c6be-870c-40c6-9127-c4867a14e75e'::uuid,
-				NULL
-			  ),
-				'base64') END END;
-		RETURN new;
-		END;
-		$$;
-
-ALTER FUNCTION "public"."query_stats_encrypt_secret_prompt_encrypted"() OWNER TO "postgres";
-
-CREATE OR REPLACE FUNCTION "public"."query_stats_encrypt_secret_response"() RETURNS "trigger"
-    LANGUAGE "plpgsql"
-    AS $$
-		BEGIN
-		        new.response = CASE WHEN new.response IS NULL THEN NULL ELSE
-			CASE WHEN '348d822d-5ac6-4c02-b301-b436a5d17831' IS NULL THEN NULL ELSE pg_catalog.encode(
-			  pgsodium.crypto_aead_det_encrypt(
-				pg_catalog.convert_to(new.response, 'utf8'),
-				pg_catalog.convert_to(('')::text, 'utf8'),
-				'348d822d-5ac6-4c02-b301-b436a5d17831'::uuid,
-				NULL
-			  ),
-				'base64') END END;
-		RETURN new;
-		END;
-		$$;
-
-ALTER FUNCTION "public"."query_stats_encrypt_secret_response"() OWNER TO "postgres";
-
 CREATE OR REPLACE FUNCTION "public"."query_stats_top_references"("project_id" "uuid", "from_tz" timestamp with time zone, "to_tz" timestamp with time zone, "match_count" integer) RETURNS TABLE("path" "text", "source_type" "text", "source_data" "jsonb", "occurrences" bigint)
     LANGUAGE "plpgsql"
     AS $$
@@ -513,6 +456,8 @@ SET default_tablespace = '';
 
 SET default_table_access_method = "heap";
 
+
+
 CREATE TABLE IF NOT EXISTS "public"."conversations" (
     "id" "uuid" DEFAULT "extensions"."uuid_generate_v4"() NOT NULL,
     "created_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL,
@@ -541,25 +486,130 @@ CREATE OR REPLACE VIEW "public"."decrypted_conversations" AS
 
 ALTER TABLE "public"."decrypted_conversations" OWNER TO "postgres";
 
-CREATE TABLE IF NOT EXISTS "public"."query_stats" (
+ALTER TABLE ONLY "public"."conversations"
+    ADD CONSTRAINT "conversations_pkey" PRIMARY KEY ("id");
+
+CREATE TABLE IF NOT EXISTS "public"."projects" (
     "id" "uuid" DEFAULT "extensions"."uuid_generate_v4"() NOT NULL,
-    "created_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL,
-    "project_id" "uuid" NOT NULL,
-    "no_response" boolean,
-    "upvoted" boolean,
-    "downvoted" boolean,
-    "processed" boolean DEFAULT false NOT NULL,
-    "embedding" "public"."vector"(1536),
-    "reference_paths" "text"[],
-    "meta" "jsonb",
-    "feedback" "jsonb",
-    "processed_state" "public"."query_stat_processed_state" DEFAULT 'skipped'::"public"."query_stat_processed_state",
-    "prompt" "text",
-    "response" "text",
-    "prompt_clear" "text",
-    "response_clear" "text",
-    "conversation_id" "uuid"
+    "inserted_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL,
+    "slug" "text" NOT NULL,
+    "name" "text" NOT NULL,
+    "github_repo" "text",
+    "team_id" "uuid" NOT NULL,
+    "is_starter" boolean DEFAULT false NOT NULL,
+    "created_by" "uuid" NOT NULL,
+    "public_api_key" "text" NOT NULL,
+    "private_dev_api_key" "text" NOT NULL,
+    "openai_key" "text",
+    "markprompt_config" "jsonb"
 );
+
+ALTER TABLE "public"."projects" OWNER TO "postgres";
+
+ALTER TABLE ONLY "public"."projects"
+    ADD CONSTRAINT "projects_pkey" PRIMARY KEY ("id");
+
+ALTER TABLE ONLY "public"."projects"
+    ADD CONSTRAINT "projects_private_dev_api_key_key" UNIQUE ("private_dev_api_key");
+
+ALTER TABLE ONLY "public"."projects"
+    ADD CONSTRAINT "projects_public_api_key_key" UNIQUE ("public_api_key");
+
+
+create table
+  public.query_stats (
+    id uuid not null default "extensions"."uuid_generate_v4"(),
+    created_at timestamp with time zone not null default timezone ('utc'::text, now()),
+    project_id uuid not null,
+    no_response boolean null,
+    upvoted boolean null,
+    downvoted boolean null,
+    processed boolean not null default false,
+    embedding public.vector null,
+    reference_paths text[] null,
+    meta jsonb null,
+    feedback jsonb null,
+    processed_state "public"."query_stat_processed_state" null default 'skipped'::"public"."query_stat_processed_state",
+    prompt text null,
+    response text null,
+    prompt_clear text null,
+    response_clear text null,
+    conversation_id uuid null,
+    constraint query_stats_pkey primary key (id),
+    constraint query_stats_conversation_id_fkey foreign key (conversation_id) references "public"."conversations" (id) on delete cascade,
+    constraint query_stats_project_id_fkey foreign key (project_id) references "public"."projects" (id) on delete cascade
+  ) tablespace pg_default;
+
+create index if not exists idx_query_stats_project_id_created_at_processed on public.query_stats using btree (project_id, created_at, processed) tablespace pg_default;
+
+CREATE OR REPLACE FUNCTION "public"."query_stats_encrypt_secret_prompt"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    AS $$
+		BEGIN
+		        new.prompt = CASE WHEN new.prompt IS NULL THEN NULL ELSE
+			CASE WHEN '348d822d-5ac6-4c02-b301-b436a5d17831' IS NULL THEN NULL ELSE pg_catalog.encode(
+			  pgsodium.crypto_aead_det_encrypt(
+				pg_catalog.convert_to(new.prompt, 'utf8'),
+				pg_catalog.convert_to(('')::text, 'utf8'),
+				'348d822d-5ac6-4c02-b301-b436a5d17831'::uuid,
+				NULL
+			  ),
+				'base64') END END;
+		RETURN new;
+		END;
+		$$;
+
+ALTER FUNCTION "public"."query_stats_encrypt_secret_prompt"() OWNER TO "postgres";
+
+CREATE OR REPLACE FUNCTION "public"."query_stats_encrypt_secret_prompt_encrypted"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    AS $$
+		BEGIN
+		        new.prompt_encrypted = CASE WHEN new.prompt_encrypted IS NULL THEN NULL ELSE
+			CASE WHEN 'af56c6be-870c-40c6-9127-c4867a14e75e' IS NULL THEN NULL ELSE pg_catalog.encode(
+			  pgsodium.crypto_aead_det_encrypt(
+				pg_catalog.convert_to(new.prompt_encrypted, 'utf8'),
+				pg_catalog.convert_to(('')::text, 'utf8'),
+				'af56c6be-870c-40c6-9127-c4867a14e75e'::uuid,
+				NULL
+			  ),
+				'base64') END END;
+		RETURN new;
+		END;
+		$$;
+
+ALTER FUNCTION "public"."query_stats_encrypt_secret_prompt_encrypted"() OWNER TO "postgres";
+
+CREATE OR REPLACE FUNCTION "public"."query_stats_encrypt_secret_response"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    AS $$
+		BEGIN
+		        new.response = CASE WHEN new.response IS NULL THEN NULL ELSE
+			CASE WHEN '348d822d-5ac6-4c02-b301-b436a5d17831' IS NULL THEN NULL ELSE pg_catalog.encode(
+			  pgsodium.crypto_aead_det_encrypt(
+				pg_catalog.convert_to(new.response, 'utf8'),
+				pg_catalog.convert_to(('')::text, 'utf8'),
+				'348d822d-5ac6-4c02-b301-b436a5d17831'::uuid,
+				NULL
+			  ),
+				'base64') END END;
+		RETURN new;
+		END;
+		$$;
+
+ALTER FUNCTION "public"."query_stats_encrypt_secret_response"() OWNER TO "postgres";
+
+
+
+create trigger query_stats_encrypt_secret_trigger_prompt before insert
+or
+update of prompt on "public"."query_stats" for each row
+execute function "public"."query_stats_encrypt_secret_prompt" ();
+
+create trigger query_stats_encrypt_secret_trigger_response before insert
+or
+update of response on "public"."query_stats" for each row
+execute function "public"."query_stats_encrypt_secret_response" ();
 
 ALTER TABLE "public"."query_stats" OWNER TO "postgres";
 
@@ -677,22 +727,6 @@ CREATE TABLE IF NOT EXISTS "public"."memberships" (
 
 ALTER TABLE "public"."memberships" OWNER TO "postgres";
 
-CREATE TABLE IF NOT EXISTS "public"."projects" (
-    "id" "uuid" DEFAULT "extensions"."uuid_generate_v4"() NOT NULL,
-    "inserted_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL,
-    "slug" "text" NOT NULL,
-    "name" "text" NOT NULL,
-    "github_repo" "text",
-    "team_id" "uuid" NOT NULL,
-    "is_starter" boolean DEFAULT false NOT NULL,
-    "created_by" "uuid" NOT NULL,
-    "public_api_key" "text" NOT NULL,
-    "private_dev_api_key" "text" NOT NULL,
-    "openai_key" "text",
-    "markprompt_config" "jsonb"
-);
-
-ALTER TABLE "public"."projects" OWNER TO "postgres";
 
 CREATE TABLE IF NOT EXISTS "public"."prompt_configs" (
     "id" "uuid" DEFAULT "extensions"."uuid_generate_v4"() NOT NULL,
@@ -904,8 +938,7 @@ CREATE OR REPLACE VIEW "public"."v_users_with_pending_weekly_update_email" AS
 
 ALTER TABLE "public"."v_users_with_pending_weekly_update_email" OWNER TO "postgres";
 
-ALTER TABLE ONLY "public"."conversations"
-    ADD CONSTRAINT "conversations_pkey" PRIMARY KEY ("id");
+
 
 ALTER TABLE ONLY "public"."domains"
     ADD CONSTRAINT "domains_name_key" UNIQUE ("name");
@@ -922,20 +955,12 @@ ALTER TABLE ONLY "public"."files"
 ALTER TABLE ONLY "public"."memberships"
     ADD CONSTRAINT "memberships_pkey" PRIMARY KEY ("id");
 
-ALTER TABLE ONLY "public"."projects"
-    ADD CONSTRAINT "projects_pkey" PRIMARY KEY ("id");
-
-ALTER TABLE ONLY "public"."projects"
-    ADD CONSTRAINT "projects_private_dev_api_key_key" UNIQUE ("private_dev_api_key");
-
-ALTER TABLE ONLY "public"."projects"
-    ADD CONSTRAINT "projects_public_api_key_key" UNIQUE ("public_api_key");
 
 ALTER TABLE ONLY "public"."prompt_configs"
     ADD CONSTRAINT "prompt_configs_pkey" PRIMARY KEY ("id");
 
-ALTER TABLE ONLY "public"."query_stats"
-    ADD CONSTRAINT "query_stats_pkey" PRIMARY KEY ("id");
+-- ALTER TABLE ONLY "public"."query_stats"
+--     ADD CONSTRAINT "query_stats_pkey" PRIMARY KEY ("id");
 
 ALTER TABLE ONLY "public"."sources"
     ADD CONSTRAINT "sources_pkey" PRIMARY KEY ("id");
@@ -986,7 +1011,7 @@ CREATE INDEX "idx_projects_public_api_key" ON "public"."projects" USING "btree" 
 
 CREATE INDEX "idx_projects_team_id" ON "public"."projects" USING "btree" ("team_id");
 
-CREATE INDEX "idx_query_stats_project_id_created_at_processed" ON "public"."query_stats" USING "btree" ("project_id", "created_at", "processed");
+-- CREATE INDEX "idx_query_stats_project_id_created_at_processed" ON "public"."query_stats" USING "btree" ("project_id", "created_at", "processed");
 
 CREATE INDEX "idx_tokens_project_id" ON "public"."tokens" USING "btree" ("project_id");
 
@@ -1003,11 +1028,11 @@ CREATE OR REPLACE VIEW "public"."v_team_project_usage_info" AS
      LEFT JOIN "public"."teams" ON (("projects"."team_id" = "teams"."id")))
   GROUP BY "projects"."id", "teams"."id";
 
-CREATE TRIGGER "conversations_encrypt_secret_trigger_metadata" BEFORE INSERT OR UPDATE OF "metadata" ON "public"."conversations" FOR EACH ROW EXECUTE FUNCTION "public"."conversations_encrypt_secret_metadata"();
+-- CREATE TRIGGER "conversations_encrypt_secret_trigger_metadata" BEFORE INSERT OR UPDATE OF "metadata" ON "public"."conversations" FOR EACH ROW EXECUTE FUNCTION "public"."conversations_encrypt_secret_metadata"();
 
-CREATE TRIGGER "query_stats_encrypt_secret_trigger_prompt" BEFORE INSERT OR UPDATE OF "prompt" ON "public"."query_stats" FOR EACH ROW EXECUTE FUNCTION "public"."query_stats_encrypt_secret_prompt"();
+-- CREATE TRIGGER "query_stats_encrypt_secret_trigger_prompt" BEFORE INSERT OR UPDATE OF "prompt" ON "public"."query_stats" FOR EACH ROW EXECUTE FUNCTION "public"."query_stats_encrypt_secret_prompt"();
 
-CREATE TRIGGER "query_stats_encrypt_secret_trigger_response" BEFORE INSERT OR UPDATE OF "response" ON "public"."query_stats" FOR EACH ROW EXECUTE FUNCTION "public"."query_stats_encrypt_secret_response"();
+-- CREATE TRIGGER "query_stats_encrypt_secret_trigger_response" BEFORE INSERT OR UPDATE OF "response" ON "public"."query_stats" FOR EACH ROW EXECUTE FUNCTION "public"."query_stats_encrypt_secret_response"();
 
 ALTER TABLE ONLY "public"."conversations"
     ADD CONSTRAINT "conversations_project_id_fkey" FOREIGN KEY ("project_id") REFERENCES "public"."projects"("id") ON DELETE CASCADE;
@@ -1041,12 +1066,6 @@ ALTER TABLE ONLY "public"."projects"
 
 ALTER TABLE ONLY "public"."prompt_configs"
     ADD CONSTRAINT "prompt_configs_project_id_fkey" FOREIGN KEY ("project_id") REFERENCES "public"."projects"("id") ON DELETE CASCADE;
-
-ALTER TABLE ONLY "public"."query_stats"
-    ADD CONSTRAINT "query_stats_conversation_id_fkey" FOREIGN KEY ("conversation_id") REFERENCES "public"."conversations"("id") ON DELETE CASCADE;
-
-ALTER TABLE ONLY "public"."query_stats"
-    ADD CONSTRAINT "query_stats_project_id_fkey" FOREIGN KEY ("project_id") REFERENCES "public"."projects"("id") ON DELETE CASCADE;
 
 ALTER TABLE ONLY "public"."sources"
     ADD CONSTRAINT "sources_project_id_fkey" FOREIGN KEY ("project_id") REFERENCES "public"."projects"("id") ON DELETE CASCADE;
