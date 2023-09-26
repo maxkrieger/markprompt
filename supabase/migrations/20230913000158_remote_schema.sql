@@ -334,6 +334,7 @@ ALTER FUNCTION "public"."get_team_stats"("team_id" "uuid") OWNER TO "postgres";
 
 CREATE OR REPLACE FUNCTION "public"."handle_new_user"() RETURNS "trigger"
     LANGUAGE "plpgsql" SECURITY DEFINER
+    set search_path = public
     AS $$
 begin
   insert into public.users (id, full_name, email, avatar_url)
@@ -1417,6 +1418,10 @@ GRANT ALL ON FUNCTION "public"."get_team_stats"("team_id" "uuid") TO "service_ro
 GRANT ALL ON FUNCTION "public"."handle_new_user"() TO "anon";
 GRANT ALL ON FUNCTION "public"."handle_new_user"() TO "authenticated";
 GRANT ALL ON FUNCTION "public"."handle_new_user"() TO "service_role";
+
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure public.handle_new_user();
 
 GRANT ALL ON FUNCTION "public"."inner_product"("public"."vector", "public"."vector") TO "postgres";
 GRANT ALL ON FUNCTION "public"."inner_product"("public"."vector", "public"."vector") TO "anon";

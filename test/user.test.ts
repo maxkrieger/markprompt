@@ -17,7 +17,10 @@ async function resetDB() {
   });
 }
 
-describe('test', async () => {
+const EMAIL = 'test@example.com';
+const PASSWORD = 'example-password';
+
+describe('User account creation', async () => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
@@ -31,8 +34,8 @@ describe('test', async () => {
   });
 
   const { data, error } = await supabase.auth.signUp({
-    email: 'test@example.com',
-    password: 'example-password',
+    email: EMAIL,
+    password: PASSWORD,
   });
   assert(!error);
 
@@ -43,7 +46,7 @@ describe('test', async () => {
   });
 
   const user = (await import('@/pages/api/user')).default;
-  test('test', async () => {
+  test('GET /api/user', async () => {
     const req = createRequest({
       method: 'GET',
       url: '/api/user',
@@ -51,7 +54,11 @@ describe('test', async () => {
     const res = createResponse();
     await user(req, res);
     expect(res.statusCode).toBe(200);
-    const json = await res.json();
-    console.log(json);
+    expect(res._isJSON()).toBe(true);
+    const json = res._getJSONData();
+    expect(json).toHaveProperty('id');
+    expect(json).toHaveProperty('email');
+    expect(json['email']).toBe(EMAIL);
+    expect(json['id']).toBe(data?.user?.id);
   });
 });
