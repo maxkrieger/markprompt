@@ -45,8 +45,8 @@ describe('User account creation', async () => {
     };
   });
 
-  const user = (await import('@/pages/api/user')).default;
   test('GET /api/user', async () => {
+    const user = (await import('@/pages/api/user')).default;
     const req = createRequest({
       method: 'GET',
       url: '/api/user',
@@ -60,5 +60,19 @@ describe('User account creation', async () => {
     expect(json).toHaveProperty('email');
     expect(json['email']).toBe(EMAIL);
     expect(json['id']).toBe(data?.user?.id);
+  });
+  test('POST /api/user/init', async () => {
+    const init = (await import('@/pages/api/user/init')).default;
+    const req = createRequest({
+      method: 'POST',
+      url: '/api/user/init',
+    });
+    const res = createResponse();
+    await init(req, res);
+    expect(res.statusCode).toBe(200);
+    expect(res._isJSON()).toBe(true);
+    const json = res._getJSONData();
+    expect(json).toHaveProperty('team');
+    expect(json).toHaveProperty('project');
   });
 });
