@@ -6,6 +6,7 @@ import 'dotenv/config';
 
 import { createRequest, createResponse } from 'node-mocks-http';
 
+// Requires supabase CLI to be running the DB
 async function resetDB() {
   return new Promise((resolve, reject) => {
     exec('supabase db reset', (err, stdout, stderr) => {
@@ -20,7 +21,9 @@ async function resetDB() {
 const EMAIL = 'test@example.com';
 const PASSWORD = 'example-password';
 
-describe('User account creation', async () => {
+const isCI = !process.env.CI;
+
+describe.skipIf(isCI)('User account creation', async () => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 

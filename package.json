@@ -12,6 +12,7 @@
     "lint:ts": "tsc",
     "version": "changeset version && npm install",
     "test": "vitest run --coverage",
+    "test:CI": "CI=true vitest run --coverage",
     "test:watch": "vitest watch --coverage"
   },
   "overrides": {
